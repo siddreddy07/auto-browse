@@ -1,6 +1,6 @@
 "use client"
 
-import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs"
+import { SignInButton, SignUpButton, Show, UserButton, OrganizationSwitcher } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 
 export function Navbar() {
@@ -17,6 +17,7 @@ export function Navbar() {
           </SignUpButton>
         </Show>
         <Show when="signed-in">
+          <OrganizationSwitcher />
           <UserButton />
         </Show>
       </div>
