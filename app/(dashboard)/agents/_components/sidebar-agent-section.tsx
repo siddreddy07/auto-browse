@@ -30,7 +30,7 @@ export function SidebarAgentSection({ agents }: { agents: Agent[] }) {
     return (
       <SidebarGroup>
         <SidebarGroupLabel>Agents</SidebarGroupLabel>
-        <SidebarGroupAction asChild tooltip="Create Agent">
+        <SidebarGroupAction asChild>
           <button>
             <Plus animateOnHover />
           </button>

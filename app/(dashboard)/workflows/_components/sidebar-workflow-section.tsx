@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Plus } from "@/components/animate-ui/icons/plus"
@@ -15,26 +16,34 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { getWorkflows } from "../actions"
 
 interface Workflow {
   id: string
+  orgId: string
   name: string
+  graph: unknown
+  createdAt: Date
+  updatedAt: Date
 }
 
-export function SidebarWorkflowSection({
-  workflows,
-}: {
-  workflows: Workflow[]
-}) {
+export function SidebarWorkflowSection() {
   const pathname = usePathname()
   const { state } = useSidebar()
+  const [workflows, setWorkflows] = useState<Workflow[]>([])
   const isActive = pathname.startsWith("/workflows")
+
+  useEffect(() => {
+    getWorkflows().then(setWorkflows)
+  }, [])
+
+  console.log('Workflows :',workflows)
 
   if (state === "expanded") {
     return (
       <SidebarGroup>
         <SidebarGroupLabel>Workflows</SidebarGroupLabel>
-        <SidebarGroupAction asChild tooltip="Create Workflow">
+        <SidebarGroupAction asChild>
           <button>
             <Plus animateOnHover />
           </button>
