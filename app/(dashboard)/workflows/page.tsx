@@ -48,7 +48,7 @@ export default function WorkflowsPage() {
         {workflows.map((workflow) => (
           <Link
             key={workflow.id}
-            href={`/workflow/${workflow.id}`}
+            href={`/workflows/${workflow.id}`}
             className="group flex flex-col gap-3 rounded-lg border bg-card p-4 transition-colors hover:bg-accent"
           >
             <div className="flex items-center gap-3">

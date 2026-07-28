@@ -53,8 +53,8 @@ export function SidebarWorkflowSection({ workflows }: { workflows: Workflow[] })
             ) : (
               workflows.map((workflow) => (
                 <SidebarMenuItem key={workflow.id}>
-                  <SidebarMenuButton tooltip={workflow.name} asChild>
-                    <Link href="/workflows">
+                  <SidebarMenuButton tooltip={workflow.name} asChild isActive={pathname === `/workflows/${workflow.id}`}>
+                    <Link href={`/workflows/${workflow.id}`}>
                       <Route />
                       <span>{workflow.name}</span>
                     </Link>
@@ -103,8 +103,8 @@ export function SidebarWorkflowSection({ workflows }: { workflows: Workflow[] })
               workflows.map((workflow) => (
                 <Link
                   key={workflow.id}
-                  href="/workflows"
-                  className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                  href={`/workflows/${workflow.id}`}
+                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent ${pathname === `/workflows/${workflow.id}` ? "bg-accent text-accent-foreground" : ""}`}
                 >
                   <Route className="h-4 w-4" />
                   {workflow.name}

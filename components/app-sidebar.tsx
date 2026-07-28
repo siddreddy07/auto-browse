@@ -7,7 +7,7 @@ import {
 import { SidebarHeaderContent } from "@/components/sidebar-header-content"
 import { SidebarFooterContent } from "@/components/sidebar-footer-content"
 import { SidebarWorkflowSection } from "@/features/workflows/components/sidebar-workflow-section"
-import { SidebarAgentSection } from "@/app/(dashboard)/agents/_components/sidebar-agent-section"
+import { SidebarAgentSection } from "@/features/agents/components/sidebar-agent-section"
 import type { Agent, Workflow } from "@/lib/schema"
 
 export async function AppSidebar({ workflows, agents }: { workflows: Workflow[]; agents: Agent[] }) {

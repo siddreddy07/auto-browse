@@ -57,7 +57,7 @@ export function SidebarAgentSection({ agents }: { agents: Agent[] }) {
             ) : (
               agents.map((agent) => (
                 <SidebarMenuItem key={agent.id}>
-                  <SidebarMenuButton tooltip={agent.name} asChild>
+                  <SidebarMenuButton tooltip={agent.name} asChild isActive={pathname === `/agents/${agent.id}`}>
                     <Link href={`/agents/${agent.id}`}>
                       <Bot animateOnHover />
                       <span>{agent.name}</span>
@@ -112,7 +112,7 @@ export function SidebarAgentSection({ agents }: { agents: Agent[] }) {
                 <Link
                   key={agent.id}
                   href={`/agents/${agent.id}`}
-                  className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent ${pathname === `/agents/${agent.id}` ? "bg-accent text-accent-foreground" : ""}`}
                 >
                   <Bot className="h-4 w-4" />
                   {agent.name}
