@@ -6,16 +6,11 @@ import {
 } from "@/components/ui/sidebar"
 import { SidebarHeaderContent } from "@/components/sidebar-header-content"
 import { SidebarFooterContent } from "@/components/sidebar-footer-content"
-import { SidebarWorkflowSection } from "@/app/(dashboard)/workflows/_components/sidebar-workflow-section"
+import { SidebarWorkflowSection } from "@/features/workflows/components/sidebar-workflow-section"
 import { SidebarAgentSection } from "@/app/(dashboard)/agents/_components/sidebar-agent-section"
+import type { Agent, Workflow } from "@/lib/schema"
 
-const dummyAgents = [
-  { id: "1", name: "Support Bot" },
-  { id: "2", name: "Sales Agent" },
-]
-
-export async function AppSidebar() {
-  const agents = dummyAgents
+export async function AppSidebar({ workflows, agents }: { workflows: Workflow[]; agents: Agent[] }) {
 
   return (
     <Sidebar collapsible="icon">
@@ -23,7 +18,7 @@ export async function AppSidebar() {
         <SidebarHeaderContent />
       </SidebarHeader>
       <SidebarContent className="gap-2">
-        <SidebarWorkflowSection />
+        <SidebarWorkflowSection workflows={workflows} />
         <SidebarAgentSection agents={agents} />
       </SidebarContent>
       <SidebarFooter className="flex items-center justify-center p-2">

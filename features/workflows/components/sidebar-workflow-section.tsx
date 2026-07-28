@@ -3,8 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTransition } from "react"
-import { Bot } from "@/components/animate-ui/icons/bot"
 import { Plus } from "@/components/animate-ui/icons/plus"
+import { Route } from "@/components/animate-ui/icons/route"
 import { Loader2 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
@@ -17,50 +17,46 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import type { Agent } from "@/lib/schema"
-import { createAgentAction } from "@/features/agents/actions"
+import type { Workflow } from "@/lib/schema"
+import { createWorkflowAction } from "../actions"
+import { generateSlug } from "../lib/generate-slug"
 
-export function SidebarAgentSection({ agents }: { agents: Agent[] }) {
+export function SidebarWorkflowSection({ workflows }: { workflows: Workflow[] }) {
   const pathname = usePathname()
   const { state } = useSidebar()
-  const isActive = pathname.startsWith("/agents")
+  const isActive = pathname.startsWith("/workflows")
   const [isPending, startTransition] = useTransition()
 
-  function handleCreateAgent() {
-    startTransition(async () => {
-      await createAgentAction({
-        name: "New Agent",
-        apiKey: "",
-        modelName: "",
-        prompt: "",
-      })
+  function handleCreateWorkflow() {
+    startTransition(() => {
+      createWorkflowAction(generateSlug())
     })
   }
 
   if (state === "expanded") {
     return (
       <SidebarGroup>
-        <SidebarGroupLabel>Agents</SidebarGroupLabel>
+        <SidebarGroupLabel>Workflows</SidebarGroupLabel>
         <SidebarGroupAction asChild>
-          <button onClick={handleCreateAgent} disabled={isPending}>
+          <button className="cursor-pointer" onClick={handleCreateWorkflow} disabled={isPending}>
             {isPending ? <Loader2 className="size-4 animate-spin" /> : <Plus animateOnHover />}
           </button>
         </SidebarGroupAction>
         <SidebarGroupContent>
           <SidebarMenu className="gap-1">
-            {agents.length === 0 ? (
+            {workflows.length === 0 ? (
               <SidebarMenuItem>
                 <span className="px-2 py-1.5 text-xs text-muted-foreground">
-                  No agents yet
+                  No workflows yet
                 </span>
               </SidebarMenuItem>
             ) : (
-              agents.map((agent) => (
-                <SidebarMenuItem key={agent.id}>
-                  <SidebarMenuButton tooltip={agent.name} asChild>
-                    <Link href={`/agents/${agent.id}`}>
-                      <Bot animateOnHover />
-                      <span>{agent.name}</span>
+              workflows.map((workflow) => (
+                <SidebarMenuItem key={workflow.id}>
+                  <SidebarMenuButton tooltip={workflow.name} asChild>
+                    <Link href="/workflows">
+                      <Route />
+                      <span>{workflow.name}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -79,43 +75,39 @@ export function SidebarAgentSection({ agents }: { agents: Agent[] }) {
           <PopoverTrigger asChild>
             <SidebarMenuButton
               isActive={isActive}
-              tooltip="Agents"
+              tooltip="Workflows"
               className="justify-center"
             >
-              <Bot animateOnHover />
+              <Route />
             </SidebarMenuButton>
           </PopoverTrigger>
           <PopoverContent side="right" align="start" className="w-56">
-            <button
-              onClick={handleCreateAgent}
-              disabled={isPending}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button onClick={handleCreateWorkflow} disabled={isPending} className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed">
               {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-              Create new Agent
+              Create new Workflow
             </button>
             <hr className="my-1 border-border" />
             <div className="px-2 text-xs flex items-center justify-between font-medium text-muted-foreground">
-              <span>
-                Recent
-              </span>
-              <Link href={'agents'} className="underline cursor-pointer hover:text-zinc-500">
-                Go to agents
+                <span>
+              Recent
+                </span>
+                <Link href="/workflows" className="underline cursor-pointer hover:text-zinc-500">
+                Go to workflows
               </Link>
             </div>
-            {agents.length === 0 ? (
+            {workflows.length === 0 ? (
               <span className="block px-2 py-1.5 text-xs text-muted-foreground">
-                No agents yet
+                No workflows yet
               </span>
             ) : (
-              agents.map((agent) => (
+              workflows.map((workflow) => (
                 <Link
-                  key={agent.id}
-                  href={`/agents/${agent.id}`}
+                  key={workflow.id}
+                  href="/workflows"
                   className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
                 >
-                  <Bot className="h-4 w-4" />
-                  {agent.name}
+                  <Route className="h-4 w-4" />
+                  {workflow.name}
                 </Link>
               ))
             )}
