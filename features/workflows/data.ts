@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { workflows } from "@/lib/schema";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 export function listWorkflows(orgId: string) {
   return db
@@ -10,11 +10,11 @@ export function listWorkflows(orgId: string) {
     .orderBy(desc(workflows.createdAt));
 }
 
-export async function getWorkflowById(id: string) {
+export async function getWorkflow(orgId: string, id: string) {
   const [workflow] = await db
     .select()
     .from(workflows)
-    .where(eq(workflows.id, id));
+    .where(and(eq(workflows.orgId, orgId), eq(workflows.id, id)));
 
   return workflow;
 }

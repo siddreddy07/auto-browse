@@ -1,27 +1,19 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import {
   ReactFlow,
   Controls,
-  useNodesState,
-  useEdgesState,
-  addEdge,
   ConnectionLineType
 } from "@xyflow/react"
-import type { ColorMode, Connection } from "@xyflow/react"
+import type { ColorMode } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 import { ResizablePanel } from "@/components/ui/resizable"
 import { useTheme } from "next-themes"
+import { useLiveblocksFlow, Cursors } from "@liveblocks/react-flow"
+import { StepNode } from "../step-node"
 
-const initialNodes = [
-  { id: "n1", position: { x: 0, y: 0 }, data: { label: "Node 1" }, type: "input" },
-  { id: "n2", position: { x: 100, y: 100 }, data: { label: "Node 2" }, type: "output" },
-]
-
-const initialEdges = [
-  { id: "n1-n2", source: "n1", target: "n2", type: "smoothstep", style: { stroke: "var(--border)" } },
-]
+const nodeTypes = { step: StepNode }
 
 export function Canvas() {
   const { resolvedTheme } = useTheme()
@@ -29,12 +21,58 @@ export function Canvas() {
 
   useEffect(() => setMounted(true), [])
   
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
-  const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    [],
-  )
+  const {
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    onDelete,
+  } = useLiveblocksFlow({
+    suspense: true,
+    nodes: {
+      initial: [
+        {
+          id: "n1",
+          position: { x: 50, y: 80 },
+          data: { type: "start" },
+          type: "step",
+        },
+        {
+          id: "n2",
+          position: { x: 350, y: 80 },
+          data: { type: "open-url", url: "https://example.com" },
+          type: "step",
+        },
+        {
+          id: "n3",
+          position: { x: 650, y: 80 },
+          data: { type: "ai-agent", model: "gpt-4o", prompt: "", apiKey: "" },
+          type: "step",
+        },
+        {
+          id: "n4",
+          position: { x: 950, y: 80 },
+          data: { type: "send-email", to: "", subject: "", body: "" },
+          type: "step",
+        },
+        {
+          id: "n5",
+          position: { x: 1100, y: 200 },
+          data: { type: "stop" },
+          type: "step",
+        },
+      ],
+    },
+    edges: {
+      initial: [
+        { id: "e1", source: "n1", target: "n2", type: "smoothstep" },
+        { id: "e2", source: "n2", target: "n3", type: "smoothstep" },
+        { id: "e3", source: "n3", target: "n4", type: "smoothstep" },
+        { id: "e4", source: "n4", target: "n5", type: "smoothstep" },
+      ],
+    },
+  })
 
   return (
     <ResizablePanel minSize={288}>
@@ -44,26 +82,45 @@ export function Canvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onDelete={onDelete}
+        nodeTypes={nodeTypes}
         fitView
+        deleteKeyCode={["Delete", "Backspace"]}
         connectionLineType={ConnectionLineType.SmoothStep}
-        connectionLineStyle={{stroke: "var(--border)"}}
         defaultEdgeOptions={{
           type: "smoothstep",
-          style: {stroke: "var(--border)"}
         }}
+        className="size-full"
         style={
           {
           "--xy-background-color": "var(--background)",
-          "--xy-edge-stroke-width": 2,
-          "--xy-connectionline-stroke-width":2
         } as React.CSSProperties
       }
 
         maxZoom={1}
         colorMode={mounted ? (resolvedTheme as ColorMode) : undefined}
-        className="size-full"
       >
-        <Controls />
+        {mounted && <Controls />}
+        <Cursors />
+        <style>
+          {`
+            .react-flow {
+              position: relative;
+            }
+            .react-flow__edge.selected .react-flow__edge-path {
+              stroke: #3b82f6 !important;
+              stroke-width: 3 !important;
+              filter: drop-shadow(0 0 4px #3b82f6);
+            }
+            .lb-react-flow-cursors {
+              z-index: 9999 !important;
+            }
+            .lb-cursor svg {
+              width: 14px !important;
+              height: 20px !important;
+            }
+          `}
+        </style>
       </ReactFlow>
     </ResizablePanel>
   )
