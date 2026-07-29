@@ -4,14 +4,19 @@ import { useEffect, useState } from "react"
 import {
   ReactFlow,
   Controls,
-  ConnectionLineType
+  ConnectionLineType,
+  Panel
 } from "@xyflow/react"
 import type { ColorMode } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
+import "@liveblocks/react-ui/styles.css"
+import "@liveblocks/react-flow/styles.css"
+
 import { ResizablePanel } from "@/components/ui/resizable"
 import { useTheme } from "next-themes"
 import { useLiveblocksFlow, Cursors } from "@liveblocks/react-flow"
 import { StepNode } from "../step-node"
+import {AvatarStack} from "@liveblocks/react-ui"
 
 const nodeTypes = { step: StepNode }
 
@@ -121,6 +126,9 @@ export function Canvas() {
             }
           `}
         </style>
+        <Panel position="top-right">
+          <AvatarStack size={24}/>
+        </Panel>
       </ReactFlow>
     </ResizablePanel>
   )
