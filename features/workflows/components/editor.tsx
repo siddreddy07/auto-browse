@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useStore, useReactFlow } from "@xyflow/react"
 import { ChevronDown, Check } from "lucide-react"
 import {
@@ -46,6 +47,10 @@ export function Editor() {
   const node = useStore((s) => s.nodes.find((n) => n.selected))
   const { updateNodeData } = useReactFlow()
 
+  useEffect(() => {
+    if (node) console.log("selected node:", node)
+  }, [node])
+
   if (!node) {
     return (
       <div className="text-sm text-muted-foreground">
@@ -55,7 +60,6 @@ export function Editor() {
   }
 
   const def = nodeDefinitions.find((d) => d.type === (node.data.type || (node.data as any).definition?.type))
-  const isLongText = (key: string) => ["body", "prompt"].includes(key)
 
   return (
     <div className="space-y-4 text-sm">
@@ -76,17 +80,23 @@ export function Editor() {
       {def?.fields.map((field) =>
         field.key === "model" ? (
           <div key={field.key} className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
+            <label className="text-xs font-medium text-muted-foreground">
+              {field.label}
+              {field.required && <span className="ml-0.5 text-destructive">*</span>}
+            </label>
             <ModelSelect
               value={String(node.data[field.key] ?? "")}
               onChange={(v) => updateNodeData(node.id, { [field.key]: v })}
             />
           </div>
-        ) : isLongText(field.key) ? (
+        ) : field.multiline ? (
           <div key={field.key} className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
+            <label className="text-xs font-medium text-muted-foreground">
+              {field.label}
+              {field.required && <span className="ml-0.5 text-destructive">*</span>}
+            </label>
             <textarea
-              className="min-h-[120px] w-full resize-y rounded-md border bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-ring"
+              className="min-h-[300px] w-full resize-y rounded-md border bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-ring"
               placeholder={field.placeholder}
               value={String(node.data[field.key] ?? "")}
               onChange={(e) => updateNodeData(node.id, { [field.key]: e.target.value })}
@@ -94,7 +104,10 @@ export function Editor() {
           </div>
         ) : (
           <div key={field.key} className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
+            <label className="text-xs font-medium text-muted-foreground">
+              {field.label}
+              {field.required && <span className="ml-0.5 text-destructive">*</span>}
+            </label>
             <input
               className="w-full rounded-md border bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-ring"
               placeholder={field.placeholder}

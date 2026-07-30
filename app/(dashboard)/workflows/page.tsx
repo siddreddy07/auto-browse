@@ -1,18 +1,23 @@
 "use client"
 
+import { useTransition } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Route } from "@/components/animate-ui/icons/route"
 import { Plus } from "@/components/animate-ui/icons/plus"
+import { Loader2 } from "lucide-react"
 import { createWorkflowAction } from "@/features/workflows/actions"
 import { generateSlug } from "@/features/workflows/lib/generate-slug"
 import { useWorkflows } from "@/features/workflows/components/workflows-provider"
 
 export default function WorkflowsPage() {
   const workflows = useWorkflows()
+  const [isPending, startTransition] = useTransition()
 
   function handleCreateWorkflow() {
-    createWorkflowAction(generateSlug())
+    startTransition(() => {
+      createWorkflowAction(generateSlug())
+    })
   }
 
   if (workflows.length === 0) {
@@ -28,7 +33,10 @@ export default function WorkflowsPage() {
               Create your first workflow to get started.
             </p>
           </div>
-          <Button onClick={handleCreateWorkflow}>Create Workflow</Button>
+          <Button className="cursor-pointer" onClick={handleCreateWorkflow} disabled={isPending}>
+            {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
+            Create Workflow
+          </Button>
         </div>
       </div>
     )
@@ -38,8 +46,8 @@ export default function WorkflowsPage() {
     <div className="flex flex-1 flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Workflows</h1>
-        <Button className="p-2 flex items-center gap-1 cursor-pointer" onClick={handleCreateWorkflow}>
-          <Plus className="size-4" />
+        <Button className="p-2 flex items-center gap-1 cursor-pointer" onClick={handleCreateWorkflow} disabled={isPending}>
+          {isPending ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
           <span className="block text-sm sm:hidden">Workflow</span>
           <span className="hidden sm:inline">Workflow</span>
         </Button>

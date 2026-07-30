@@ -6,8 +6,8 @@ import { useRealtimeRun } from "@trigger.dev/react-hooks"
 import type { helloWorldTask } from "@/trigger/example"
 import { Button } from "@/components/ui/button"
 import { ResizablePanel } from "@/components/ui/resizable"
-import { Play, Loader2, CheckCircle2, XCircle, Timer } from "lucide-react"
-import { runWorkflowAction } from "../actions"
+import { Play, Loader2, CheckCircle2, XCircle, Timer, Trash2 } from "lucide-react"
+import { runWorkflowAction, deleteWorkflowAction } from "../actions"
 
 import { toast } from "sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -16,7 +16,7 @@ import { nodeDefinitions } from "../node-registry"
 import { Editor } from "./editor"
 import type { AddNodeFn } from "./canvas"
 
-export function RightSidebar({ addNode }: { addNode: AddNodeFn }) {
+export function RightSidebar({ workflowId, addNode }: { workflowId: string; addNode: AddNodeFn }) {
   const selectedNode = useStore((s) => s.nodes.find((n) => n.selected))
   const [tab, setTab] = useState("toolbar")
 
@@ -25,6 +25,7 @@ export function RightSidebar({ addNode }: { addNode: AddNodeFn }) {
   }, [selectedNode])
 
   const [state, action, pending] = useActionState(runWorkflowAction, null)
+  const [deleteState, deleteAction, deletePending] = useActionState(deleteWorkflowAction, null)
 
   const { run } = useRealtimeRun<typeof helloWorldTask>(state?.runId, {
     accessToken: state?.publicAccessToken ?? "",
@@ -34,23 +35,33 @@ export function RightSidebar({ addNode }: { addNode: AddNodeFn }) {
 
   return (
     <ResizablePanel defaultSize={320} minSize={280} maxSize={576} className="flex flex-col">
-      <div className="flex items-center justify-center border-b p-4">
-        {!state?.runId ? (
-          <form action={action}>
-            <Button className="cursor-pointer" type="submit" disabled={pending}>
-              {pending ? <Loader2 className="animate-spin" /> : <Play />}
-              {pending ? "Running..." : "Run"}
-            </Button>
-          </form>
-        ) : (
-          <div className="flex flex-col items-center gap-3">
-            <RunStatusIcon status={run?.status} />
-            <span className="text-sm font-medium">{run?.status ?? "Waiting..."}</span>
-            {run?.status === "COMPLETED" && (
-              <span className="text-xs text-muted-foreground">{run.output?.message}</span>
-            )}
-          </div>
-        )}
+      <div className="flex items-center justify-between border-b px-2 py-4">
+        <form action={deleteAction}>
+          <input type="hidden" name="workflowId" value={workflowId} />
+          <Button variant="ghost" size="sm" className="cursor-pointer gap-1.5 text-destructive hover:text-destructive" disabled={deletePending}>
+            {deletePending ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
+            Delete Workflow
+          </Button>
+        </form>
+        
+        <div className="flex items-center justify-center">
+          {!state?.runId ? (
+            <form action={action}>
+              <Button className="cursor-pointer" type="submit" disabled={pending}>
+                {pending ? <Loader2 className="animate-spin" /> : <Play />}
+                {pending ? "Running..." : "Run"}
+              </Button>
+            </form>
+          ) : (
+            <div className="flex flex-col items-center justify-between">
+              <RunStatusIcon status={run?.status} />
+              <span className="text-sm font-medium">{run?.status ?? "Waiting..."}</span>
+              {run?.status === "COMPLETED" && (
+                <span className="text-xs text-muted-foreground">{run.output?.message}</span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-hidden">

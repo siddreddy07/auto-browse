@@ -41,41 +41,6 @@ export function Canvas({ onAddNodeReady }: { onAddNodeReady?: (fn: AddNodeFn) =>
     onDelete,
   } = useLiveblocksFlow({
     suspense: true,
-    nodes: {
-      initial: [
-        {
-          id: "n1",
-          position: { x: 50, y: 80 },
-          data: { type: "start" },
-          type: "step",
-        },
-        {
-          id: "n2",
-          position: { x: 350, y: 80 },
-          data: { type: "openurl", url: "https://example.com" },
-          type: "step",
-        },
-        {
-          id: "n3",
-          position: { x: 650, y: 80 },
-          data: { type: "agent", model: "gpt-4o", prompt: "", apiKey: "" },
-          type: "step",
-        },
-        {
-          id: "n4",
-          position: { x: 950, y: 80 },
-          data: { type: "send-email", to: "", subject: "", body: "" },
-          type: "step",
-        },
-      ],
-    },
-    edges: {
-      initial: [
-        { id: "e1", source: "n1", target: "n2", type: "smoothstep" },
-        { id: "e2", source: "n2", target: "n3", type: "smoothstep" },
-        { id: "e3", source: "n3", target: "n4", type: "smoothstep" },
-      ],
-    },
   })
 
   const addNode = useCallback((type: string) => {
@@ -86,10 +51,7 @@ export function Canvas({ onAddNodeReady }: { onAddNodeReady?: (fn: AddNodeFn) =>
       return { success: false, reason: `Only one "${def.label}" trigger allowed` }
     }
 
-    const sameTypeCount = nodes.filter((n) => n.data && n.data.type === type).length
-    const label = def.kind === "action"
-      ? `${def.label} ${sameTypeCount + 1}`
-      : def.label
+    const label = def.label
 
     const center = reactFlow.screenToFlowPosition({
       x: window.innerWidth / 2,

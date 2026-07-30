@@ -5,7 +5,8 @@ import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import type { helloWorldTask } from "@/trigger/example"
 import { auth, tasks } from "@trigger.dev/sdk"
-import { createWorkflow, listWorkflows } from "./data"
+import { createWorkflow, listWorkflows, deleteWorkflow } from "./data"
+import { liveblocks } from "@/lib/liveblocks"
 
 export async function getWorkflows() {
   const { orgId } = await clerkAuth()
@@ -26,8 +27,32 @@ export async function createWorkflowAction(name: string) {
 
   const workflow = await createWorkflow(orgId, name)
 
+  await liveblocks.getOrCreateRoom(workflow.id, {
+    defaultAccesses: [],
+    metadata: { title:workflow.name },
+    groupsAccesses: { [orgId]: ["room:write"] },
+  })
+
   revalidatePath("/(dashboard)", "layout")
-  redirect(`/workflow/${workflow.id}`)
+  redirect(`/workflows/${workflow.id}`)
+}
+
+export async function deleteWorkflowAction(_prevState: unknown, formData: FormData) {
+  const workflowId = formData.get("workflowId") as string
+
+  const { orgId } = await clerkAuth()
+
+  if (!orgId) {
+    throw new Error("No active organization")
+  }
+
+  await Promise.all([
+    deleteWorkflow(orgId, workflowId),
+    liveblocks.deleteRoom(workflowId),
+  ])
+
+  revalidatePath("/(dashboard)", "layout")
+  redirect("/workflows")
 }
 
 export async function runWorkflowAction() {

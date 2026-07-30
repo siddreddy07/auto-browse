@@ -28,7 +28,7 @@ export function WorkflowShell({ workflowId }: { workflowId: string }) {
             </ResizablePanelGroup>
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <RightSidebar addNode={(type) => addNodeRef.current?.(type) ?? { success: false, reason: "Not ready" }} />
+          <RightSidebar workflowId={workflowId} addNode={(type) => addNodeRef.current?.(type) ?? { success: false, reason: "Not ready" }} />
         </ResizablePanelGroup>
       </div>
     </ReactFlowProvider>
