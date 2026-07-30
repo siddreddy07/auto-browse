@@ -31,7 +31,7 @@ export default function RootLayout({
         geist.variable
       )}
     >
-      <body>
+      <body suppressHydrationWarning>
         <ClerkProvider appearance={{ theme: shadcn }}
         taskUrls={{"choose-organization":"/choose-organization"}}
         >

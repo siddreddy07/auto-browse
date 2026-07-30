@@ -4,7 +4,7 @@ export interface FieldDefinition {
   placeholder?: string
 }
 
-import { Play, Square, Globe, Mail, MessageSquare, Bot, Database, Camera } from "lucide-react"
+import { Play, Globe, Mail, Bot, Database, Eye, MousePointerClick } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export interface NodeDefinition {
@@ -26,15 +26,7 @@ export const nodeDefinitions: NodeDefinition[] = [
     fields: [],
   },
   {
-    type: "stop",
-    kind: "trigger",
-    label: "Stop",
-    icon: Square,
-    accent: "#ef4444",
-    fields: [],
-  },
-  {
-    type: "open-url",
+    type: "openurl",
     kind: "action",
     label: "Open URL",
     icon: Globe,
@@ -56,18 +48,7 @@ export const nodeDefinitions: NodeDefinition[] = [
     ],
   },
   {
-    type: "send-slack",
-    kind: "action",
-    label: "Send Slack Message",
-    icon: MessageSquare,
-    accent: "#f43f5e",
-    fields: [
-      { key: "channel", label: "Channel", placeholder: "#general" },
-      { key: "message", label: "Message", placeholder: "Task completed successfully" },
-    ],
-  },
-  {
-    type: "ai-agent",
+    type: "agent",
     kind: "action",
     label: "AI Agent",
     icon: Bot,
@@ -79,7 +60,7 @@ export const nodeDefinitions: NodeDefinition[] = [
     ],
   },
   {
-    type: "extract-data",
+    type: "extract",
     kind: "action",
     label: "Extract Data",
     icon: Database,
@@ -90,14 +71,26 @@ export const nodeDefinitions: NodeDefinition[] = [
     ],
   },
   {
-    type: "screenshot",
+    type: "observe",
     kind: "action",
-    label: "Screenshot",
-    icon: Camera,
-    accent: "#ec4899",
+    label: "Observe",
+    icon: Eye,
+    accent: "#06b6d4",
     fields: [
-      { key: "selector", label: "Element (optional)", placeholder: "body" },
-      { key: "variable", label: "Save as", placeholder: "screenshotData" },
+      { key: "selector", label: "Element Selector", placeholder: ".target-class" },
+      { key: "event", label: "Event Type", placeholder: "click, change, mutation" },
+    ],
+  },
+  {
+    type: "act",
+    kind: "action",
+    label: "Act",
+    icon: MousePointerClick,
+    accent: "#f97316",
+    fields: [
+      { key: "action", label: "Action", placeholder: "click, type, scroll" },
+      { key: "selector", label: "Target Selector", placeholder: "#my-button" },
+      { key: "value", label: "Value (optional)", placeholder: "text to type" },
     ],
   },
 ]

@@ -1,3 +1,4 @@
+import { ReactFlowProvider } from "@xyflow/react"
 import { Room } from "@/features/workflows/components/Room"
 import { WorkflowShell } from "@/features/workflows/components/workflow-shell"
 import { liveblocks } from "@/lib/liveblocks"
@@ -25,7 +26,9 @@ export default async function WorkflowPage({
 
   return(
     <Room roomId={id}>
+      <ReactFlowProvider>
         <WorkflowShell workflowId={id} />
+      </ReactFlowProvider>
     </Room>
   )
 

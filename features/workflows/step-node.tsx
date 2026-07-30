@@ -4,9 +4,9 @@ import { Handle, Position, type NodeProps } from "@xyflow/react"
 import { nodeDefinitions } from "./node-registry"
 
 export function StepNode({ data, selected }: NodeProps) {
-  const definition = nodeDefinitions.find((n) => n.type === (data.type || (data.definition as any)?.type))!
+  const definition = nodeDefinitions.find((n) => n.type === (data.type || (data.definition as any)?.type))
+  if (!definition) return null
   const isStart = definition.type === "start"
-  const isStop = definition.type === "stop"
 
   return (
     <div
@@ -21,7 +21,7 @@ export function StepNode({ data, selected }: NodeProps) {
         >
           <definition.icon className="size-4" />
         </div>
-        <span className="text-sm font-medium">{definition.label}</span>
+        <span className="text-sm font-medium">{String(data.displayLabel || definition.label)}</span>
       </div>
 
       {definition.fields.length > 0 && (
@@ -29,11 +29,9 @@ export function StepNode({ data, selected }: NodeProps) {
           {definition.fields.map((field) => (
             <div key={field.key} className="space-y-1">
               <label className="text-xs text-muted-foreground">{field.label}</label>
-              <input
-                className="w-full rounded-md border bg-transparent px-2 py-1 text-xs outline-none focus:border-ring"
-                placeholder={field.placeholder}
-                defaultValue={String(data[field.key] ?? "")}
-              />
+              <span className="block w-full rounded-md border bg-muted/50 px-2 py-1 text-xs text-muted-foreground">
+                {String(data[field.key] || field.placeholder || "")}
+              </span>
             </div>
           ))}
         </div>
@@ -42,9 +40,7 @@ export function StepNode({ data, selected }: NodeProps) {
       {!isStart && (
         <Handle type="target" position={Position.Left} className="!h-4 !w-2 !rounded-sm !border-2 !border-background" />
       )}
-      {!isStop && (
-        <Handle type="source" position={Position.Right} className="!h-4 !w-2 !rounded-sm !border-2 !border-background" />
-      )}
+      <Handle type="source" position={Position.Right} className="!h-4 !w-2 !rounded-sm !border-2 !border-background" />
     </div>
   )
 }
