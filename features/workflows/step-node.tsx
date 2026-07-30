@@ -10,7 +10,7 @@ export function StepNode({ data, selected }: NodeProps) {
 
   return (
     <div
-      className={`min-w-[200px] rounded-md border bg-card shadow-sm ${
+      className={`w-[200px] rounded-md border bg-card shadow-sm ${
         selected ? "ring-2 ring-ring" : ""
       }`}
     >
@@ -21,15 +21,15 @@ export function StepNode({ data, selected }: NodeProps) {
         >
           <definition.icon className="size-4" />
         </div>
-        <span className="text-sm font-medium">{String(data.displayLabel || definition.label)}</span>
+        <span className="truncate text-sm font-medium">{String(data.displayLabel || definition.label)}</span>
       </div>
 
       {definition.fields.length > 0 && (
         <div className="space-y-2 p-3">
           {definition.fields.map((field) => (
             <div key={field.key} className="space-y-1">
-              <label className="text-xs text-muted-foreground">{field.label}</label>
-              <span className="block w-full rounded-md border bg-muted/50 px-2 py-1 text-xs text-muted-foreground">
+              <label className="truncate text-xs text-muted-foreground">{field.label}</label>
+              <span className="block w-full truncate rounded-md border bg-muted/50 px-2 py-1 text-xs text-muted-foreground">
                 {String(data[field.key] || field.placeholder || "")}
               </span>
             </div>

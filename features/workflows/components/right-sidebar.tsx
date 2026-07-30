@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState, useEffect, useState } from "react"
+import { useStore } from "@xyflow/react"
 import { useRealtimeRun } from "@trigger.dev/react-hooks"
 import type { helloWorldTask } from "@/trigger/example"
 import { Button } from "@/components/ui/button"
@@ -12,17 +13,18 @@ import { toast } from "sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { nodeDefinitions } from "../node-registry"
-import { useNodeSelection } from "./workflows-provider"
 import { Editor } from "./editor"
+import type { AddNodeFn } from "./canvas"
 
-export function RightSidebar() {
-  const { selectedNode } = useNodeSelection()
+export function RightSidebar({ addNode }: { addNode: AddNodeFn }) {
+  const selectedNode = useStore((s) => s.nodes.find((n) => n.selected))
   const [tab, setTab] = useState("toolbar")
-  const [state, action, pending] = useActionState(runWorkflowAction, null)
 
   useEffect(() => {
     setTab(selectedNode ? "editor" : "toolbar")
   }, [selectedNode])
+
+  const [state, action, pending] = useActionState(runWorkflowAction, null)
 
   const { run } = useRealtimeRun<typeof helloWorldTask>(state?.runId, {
     accessToken: state?.publicAccessToken ?? "",
@@ -59,11 +61,11 @@ export function RightSidebar() {
           </TabsList>
 
           <TabsContent value="toolbar" className="overflow-auto p-2">
-            <Toolbar />
+            <Toolbar addNode={addNode} />
           </TabsContent>
 
           <TabsContent value="editor" className="overflow-auto p-2">
-            <Editor node={selectedNode} />
+            <Editor />
           </TabsContent>
         </Tabs>
       </div>
@@ -71,10 +73,11 @@ export function RightSidebar() {
   )
 }
 
-function Toolbar() {
-  const triggerNodes = nodeDefinitions.filter((n) => n.kind === "trigger")
-  const actionNodes = nodeDefinitions.filter((n) => n.kind === "action")
-  const { addNode } = useNodeSelection()
+function Toolbar({ addNode }: { addNode: AddNodeFn }) {
+  const categories = [
+    { value: "triggers", label: "Triggers", nodes: nodeDefinitions.filter((n) => n.kind === "trigger") },
+    { value: "actions", label: "Actions", nodes: nodeDefinitions.filter((n) => n.kind === "action") },
+  ] as const
 
   const handleAdd = (type: string, label: string) => {
     const result = addNode(type)
@@ -85,47 +88,28 @@ function Toolbar() {
 
   return (
     <Accordion type="multiple" defaultValue={["triggers", "actions"]}>
-      <AccordionItem value="triggers">
-        <AccordionTrigger>Triggers</AccordionTrigger>
-        <AccordionContent className="space-y-1">
-          {triggerNodes.map((def) => (
-            <button
-              key={def.type}
-              onClick={() => handleAdd(def.type, def.label)}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
-            >
-              <div
-                className="flex size-5 items-center justify-center rounded"
-                style={{ backgroundColor: def.accent + "20", color: def.accent }}
+      {categories.map(({ value, label, nodes }) => (
+        <AccordionItem key={value} value={value}>
+          <AccordionTrigger className="cursor-pointer">{label}</AccordionTrigger>
+          <AccordionContent className="space-y-1">
+            {nodes.map((def) => (
+              <button
+                key={def.type}
+                onClick={() => handleAdd(def.type, def.label)}
+                className="flex cursor-pointer w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
               >
-                <def.icon className="size-3" />
-              </div>
-              {def.label}
-            </button>
-          ))}
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem value="actions">
-        <AccordionTrigger>Actions</AccordionTrigger>
-        <AccordionContent className="space-y-1">
-          {actionNodes.map((def) => (
-            <button
-              key={def.type}
-              onClick={() => handleAdd(def.type, def.label)}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
-            >
-              <div
-                className="flex size-5 items-center justify-center rounded"
-                style={{ backgroundColor: def.accent + "20", color: def.accent }}
-              >
-                <def.icon className="size-3" />
-              </div>
-              {def.label}
-            </button>
-          ))}
-        </AccordionContent>
-      </AccordionItem>
+                <div
+                  className="flex size-5 items-center justify-center rounded"
+                  style={{ backgroundColor: def.accent + "20", color: def.accent }}
+                >
+                  <def.icon className="size-3" />
+                </div>
+                {def.label}
+              </button>
+            ))}
+          </AccordionContent>
+        </AccordionItem>
+      ))}
     </Accordion>
   )
 }

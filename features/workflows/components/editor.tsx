@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useStore, useReactFlow } from "@xyflow/react"
 import { ChevronDown, Check } from "lucide-react"
 import {
   DropdownMenu,
@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { nodeDefinitions } from "../node-registry"
-import type { Node as FlowNode } from "@xyflow/react"
 
 const modelCategories: Record<string, string[]> = {
   Groq: ["llama-3.3-70b-versatile"],
@@ -19,12 +18,10 @@ const modelCategories: Record<string, string[]> = {
 }
 
 function ModelSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [selected, setSelected] = useState(value)
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-ring text-left">
-        {selected || <span className="text-muted-foreground">Select model</span>}
+        {value || <span className="text-muted-foreground">Select model</span>}
         <ChevronDown className="size-3 shrink-0 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
@@ -33,9 +30,9 @@ function ModelSelect({ value, onChange }: { value: string; onChange: (v: string)
             {idx > 0 && <DropdownMenuSeparator />}
             <DropdownMenuLabel>{category}</DropdownMenuLabel>
             {models.map((model) => (
-              <DropdownMenuItem key={model} onSelect={() => { setSelected(model); onChange(model) }}>
+              <DropdownMenuItem key={model} onSelect={() => onChange(model)}>
                 <span className="flex-1">{model}</span>
-                {selected === model && <Check className="size-3 shrink-0" />}
+                {value === model && <Check className="size-3 shrink-0" />}
               </DropdownMenuItem>
             ))}
           </div>
@@ -45,7 +42,10 @@ function ModelSelect({ value, onChange }: { value: string; onChange: (v: string)
   )
 }
 
-export function Editor({ node }: { node?: FlowNode | null }) {
+export function Editor() {
+  const node = useStore((s) => s.nodes.find((n) => n.selected))
+  const { updateNodeData } = useReactFlow()
+
   if (!node) {
     return (
       <div className="text-sm text-muted-foreground">
@@ -70,13 +70,16 @@ export function Editor({ node }: { node?: FlowNode | null }) {
           <span className="text-sm font-medium">{def.label}</span>
         </div>
       )}
+      {def?.fields.length === 0 && (
+        <div className="text-xs text-muted-foreground">No properties</div>
+      )}
       {def?.fields.map((field) =>
         field.key === "model" ? (
           <div key={field.key} className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
             <ModelSelect
               value={String(node.data[field.key] ?? "")}
-              onChange={() => {}}
+              onChange={(v) => updateNodeData(node.id, { [field.key]: v })}
             />
           </div>
         ) : isLongText(field.key) ? (
@@ -85,7 +88,8 @@ export function Editor({ node }: { node?: FlowNode | null }) {
             <textarea
               className="min-h-[120px] w-full resize-y rounded-md border bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-ring"
               placeholder={field.placeholder}
-              defaultValue={String(node.data[field.key] ?? "")}
+              value={String(node.data[field.key] ?? "")}
+              onChange={(e) => updateNodeData(node.id, { [field.key]: e.target.value })}
             />
           </div>
         ) : (
@@ -94,7 +98,8 @@ export function Editor({ node }: { node?: FlowNode | null }) {
             <input
               className="w-full rounded-md border bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-ring"
               placeholder={field.placeholder}
-              defaultValue={String(node.data[field.key] ?? "")}
+              value={String(node.data[field.key] ?? "")}
+              onChange={(e) => updateNodeData(node.id, { [field.key]: e.target.value })}
             />
           </div>
         )

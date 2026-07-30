@@ -7,7 +7,6 @@ import {
   ConnectionLineType,
   Panel,
   useReactFlow,
-  type Node as FlowNode
 } from "@xyflow/react"
 import type { ColorMode } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
@@ -17,29 +16,21 @@ import "@liveblocks/react-flow/styles.css"
 import { ResizablePanel } from "@/components/ui/resizable"
 import { useTheme } from "next-themes"
 import { useLiveblocksFlow, Cursors } from "@liveblocks/react-flow"
-import { useParams } from "next/navigation"
 import { StepNode } from "../step-node"
 import { nodeDefinitions } from "../node-registry"
 import { AvatarStack } from "@liveblocks/react-ui"
-import { useNodeSelection } from "./workflows-provider"
+
+export type AddNodeResult = { success: boolean; reason?: string }
+export type AddNodeFn = (type: string) => AddNodeResult
 
 const nodeTypes = { step: StepNode }
 
-export function Canvas() {
+export function Canvas({ onAddNodeReady }: { onAddNodeReady?: (fn: AddNodeFn) => void }) {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const { selectedNode, setSelectedNode, registerAddNode } = useNodeSelection()
   const reactFlow = useReactFlow()
 
   useEffect(() => setMounted(true), [])
-
-  const params = useParams()
-  const workflowId = params?.id as string
-
-  const handleNodeClick = useCallback((_event: React.MouseEvent, node: FlowNode) => {
-    console.log(`[Canvas] Workflow ${workflowId}: clicked node`, (({ id, type, data, position }) => ({ id, type, data, position }))(node as any))
-    setSelectedNode(node)
-  }, [workflowId, setSelectedNode])
 
   const {
     nodes,
@@ -87,12 +78,6 @@ export function Canvas() {
     },
   })
 
-  useEffect(() => {
-    if (selectedNode && !nodes.some((n) => n.id === selectedNode.id)) {
-      setSelectedNode(null)
-    }
-  }, [nodes, selectedNode, setSelectedNode])
-
   const addNode = useCallback((type: string) => {
     const def = nodeDefinitions.find((d) => d.type === type)
     if (!def) return { success: false, reason: `Unknown node type: ${type}` }
@@ -128,8 +113,8 @@ export function Canvas() {
   }, [nodes, onNodesChange, reactFlow])
 
   useEffect(() => {
-    registerAddNode(addNode)
-  }, [addNode, registerAddNode])
+    onAddNodeReady?.(addNode)
+  }, [addNode, onAddNodeReady])
 
   return (
     <ResizablePanel minSize={288}>
@@ -140,7 +125,6 @@ export function Canvas() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onDelete={onDelete}
-        onNodeClick={handleNodeClick}
         nodeTypes={nodeTypes}
         fitView
         deleteKeyCode={["Delete", "Backspace"]}
