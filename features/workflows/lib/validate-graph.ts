@@ -1,4 +1,5 @@
 import { workflowGraph } from "@/lib/schema";
+import { nodeDefinitions } from "@/features/workflows/node-registry";
 import toposort from "toposort"
 
 
@@ -6,7 +7,10 @@ export function validateGraph({nodes,edges}:workflowGraph): string[] {
 
     const problems : string[] = []
 
-    const triggers = nodes.filter((n)=> n.data.kind === "trigger").length
+    const triggers = nodes.filter((n) => {
+      const def = nodeDefinitions.find(d => d.type === n.data.type)
+      return def?.kind === "trigger"
+    }).length
 
     if(triggers !== 1){
         problems.push(`A Workflow needs to have exactly one Start trigger (found ${triggers})`)

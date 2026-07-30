@@ -1,7 +1,7 @@
 "use client"
 
-import { useActionState, useEffect, useState } from "react"
-import { useStore } from "@xyflow/react"
+import { useEffect, useState, useTransition, useCallback, useActionState } from "react"
+import { useStore, useReactFlow } from "@xyflow/react"
 import { useRealtimeRun } from "@trigger.dev/react-hooks"
 import type { helloWorldTask } from "@/trigger/example"
 import { Button } from "@/components/ui/button"
@@ -12,26 +12,50 @@ import { runWorkflowAction, deleteWorkflowAction } from "../actions"
 import { toast } from "sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { nodeDefinitions } from "../node-registry"
+import { nodeDefinitions, type StepNodeType } from "../node-registry"
 import { Editor } from "./editor"
 import type { AddNodeFn } from "./canvas"
+import { validateGraph } from "../lib/validate-graph"
 
 export function RightSidebar({ workflowId, addNode }: { workflowId: string; addNode: AddNodeFn }) {
   const selectedNode = useStore((s) => s.nodes.find((n) => n.selected))
   const [tab, setTab] = useState("toolbar")
+  const [runState, setRunState] = useState<{ runId: string; publicAccessToken: string } | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const { getNodes, getEdges } = useReactFlow()
+
+  const [deleteState, deleteAction, deletePending] = useActionState(deleteWorkflowAction, null)
+
+  const { run } = useRealtimeRun<typeof helloWorldTask>(runState?.runId, {
+    accessToken: runState?.publicAccessToken ?? "",
+    enabled: !!runState?.runId,
+    skipColumns: ["payload", "output"],
+  })
 
   useEffect(() => {
     setTab(selectedNode ? "editor" : "toolbar")
   }, [selectedNode])
 
-  const [state, action, pending] = useActionState(runWorkflowAction, null)
-  const [deleteState, deleteAction, deletePending] = useActionState(deleteWorkflowAction, null)
+  const handleRun = useCallback(() => {
 
-  const { run } = useRealtimeRun<typeof helloWorldTask>(state?.runId, {
-    accessToken: state?.publicAccessToken ?? "",
-    enabled: !!state?.runId,
-    skipColumns: ["payload", "output"],
-  })
+    startTransition(async () => {
+        
+      const graph = {nodes: getNodes() as StepNodeType[], edges:getEdges()}
+      const problems = validateGraph(graph)
+
+      console.log('problems : ',problems)
+
+      if(problems.length > 0){
+        toast.error(problems[0])
+        return
+      }
+
+      const result = await runWorkflowAction({ id: workflowId, graph })
+      setRunState(result)
+    })
+  }, [workflowId, getNodes, getEdges])
+
+  const handleReset = useCallback(() => setRunState(null), [])
 
   return (
     <ResizablePanel defaultSize={320} minSize={280} maxSize={576} className="flex flex-col">
@@ -45,19 +69,20 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
         </form>
         
         <div className="flex items-center justify-center">
-          {!state?.runId ? (
-            <form action={action}>
-              <Button className="cursor-pointer" type="submit" disabled={pending}>
-                {pending ? <Loader2 className="animate-spin" /> : <Play />}
-                {pending ? "Running..." : "Run"}
-              </Button>
-            </form>
+          {!runState?.runId ? (
+            <Button className="cursor-pointer" onClick={handleRun} disabled={isPending}>
+              {isPending ? <Loader2 className="animate-spin" /> : <Play />}
+              {isPending ? "Running..." : "Run"}
+            </Button>
           ) : (
             <div className="flex flex-col items-center justify-between">
               <RunStatusIcon status={run?.status} />
               <span className="text-sm font-medium">{run?.status ?? "Waiting..."}</span>
               {run?.status === "COMPLETED" && (
                 <span className="text-xs text-muted-foreground">{run.output?.message}</span>
+              )}
+              {run?.status === "FAILED" && (
+                <button onClick={handleReset} className="text-xs text-muted-foreground underline cursor-pointer">Try again</button>
               )}
             </div>
           )}

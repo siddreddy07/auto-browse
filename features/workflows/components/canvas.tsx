@@ -51,7 +51,10 @@ export function Canvas({ onAddNodeReady }: { onAddNodeReady?: (fn: AddNodeFn) =>
       return { success: false, reason: `Only one "${def.label}" trigger allowed` }
     }
 
-    const label = def.label
+    const sameTypeCount = nodes.filter((n) => n.data && n.data.type === type).length
+    const label = def.kind === "action" && sameTypeCount > 0
+      ? `${def.label} ${sameTypeCount + 1}`
+      : def.label
 
     const center = reactFlow.screenToFlowPosition({
       x: window.innerWidth / 2,
