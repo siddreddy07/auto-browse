@@ -96,3 +96,14 @@ export const nodeDefinitions: NodeDefinition[] = [
     ],
   },
 ]
+
+
+import type { Node } from "@xyflow/react"
+
+export type StepNodeData = {
+  type: string
+  displayLabel?: string
+  [key: string]: string | undefined
+}
+
+export type StepNodeType = Node<StepNodeData>

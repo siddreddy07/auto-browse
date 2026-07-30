@@ -17,7 +17,7 @@ import { ResizablePanel } from "@/components/ui/resizable"
 import { useTheme } from "next-themes"
 import { useLiveblocksFlow, Cursors } from "@liveblocks/react-flow"
 import { StepNode } from "../step-node"
-import { nodeDefinitions } from "../node-registry"
+import { nodeDefinitions, type StepNodeData } from "../node-registry"
 import { AvatarStack } from "@liveblocks/react-ui"
 
 export type AddNodeResult = { success: boolean; reason?: string }
