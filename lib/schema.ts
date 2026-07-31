@@ -1,4 +1,4 @@
-import { StepNodeType } from "@/features/workflows/node-registry";
+import { StepNodeType } from "@/features/workflows/nodes/node-registry";
 import { Edge } from "@xyflow/react";
 import { jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 

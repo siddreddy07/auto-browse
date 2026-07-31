@@ -1,6 +1,9 @@
 import toposort from "toposort"
 import {logger,task} from "@trigger.dev/sdk"
 import { getWorkflow } from "../data"
+import { getStagehand } from "@/lib/stagehand"
+import { executeNode } from "../nodes/node-executor"
+import { nodeDefinitions } from "../nodes/node-registry"
 
 
 
@@ -31,9 +34,24 @@ export const runWorkflowTask = task({
         logger.info(`Running Workflow ${workflow.name} : `,{steps:order.length})
 
 
-        for(const id of order){
-            const node = byId.get(id)
-            logger.info(`Running Step : ${node?.data?.displayLabel || node?.data?.type}`)
+        const stagehand = await getStagehand()
+
+        try {
+            for(const id of order){
+                const node = byId.get(id)
+                const data = node?.data
+                if(!data) continue
+
+                const def = nodeDefinitions.find((d)=> d.type === data.type)
+                if(def?.kind === "trigger") continue
+
+                logger.info(`Running Step : ${data.displayLabel || data.type}`)
+
+                const result = await executeNode(stagehand, data)
+                logger.info(`Step ${data.displayLabel || data.type} completed`, {result})
+            }
+        } finally {
+            await stagehand.close()
         }
 
         return {steps:order.length}

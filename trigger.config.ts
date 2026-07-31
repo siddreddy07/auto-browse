@@ -19,4 +19,7 @@ export default defineConfig({
     },
   },
   dirs: ["features/workflows"],
+  build: {
+    external: ["pino", "thread-stream", "sonic-boom"],
+  },
 });

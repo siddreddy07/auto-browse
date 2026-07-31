@@ -12,7 +12,7 @@ import { runWorkflowAction, deleteWorkflowAction } from "../actions"
 import { toast } from "sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { nodeDefinitions, type StepNodeType } from "../node-registry"
+import { nodeDefinitions, type StepNodeType } from "../nodes/node-registry"
 import { Editor } from "./editor"
 import type { AddNodeFn } from "./canvas"
 import { validateGraph } from "../lib/validate-graph"
@@ -22,6 +22,7 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
   const [tab, setTab] = useState("toolbar")
   const [runState, setRunState] = useState<{ runId: string; publicAccessToken: string } | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [countdown, setCountdown] = useState(0)
   const { getNodes, getEdges } = useReactFlow()
 
   const [deleteState, deleteAction, deletePending] = useActionState(deleteWorkflowAction, null)
@@ -57,6 +58,22 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
 
   const handleReset = useCallback(() => setRunState(null), [])
 
+  const completed = !!runState?.runId && run?.status === "COMPLETED"
+
+  useEffect(() => {
+    if (!completed) {
+      setCountdown(0)
+      return
+    }
+    setCountdown(10)
+    const interval = setInterval(() => setCountdown((c) => (c > 1 ? c - 1 : 0)), 1000)
+    const timeout = setTimeout(handleReset, 10000)
+    return () => {
+      clearInterval(interval)
+      clearTimeout(timeout)
+    }
+  }, [completed, handleReset])
+
   return (
     <ResizablePanel defaultSize={320} minSize={280} maxSize={576} className="flex flex-col">
       <div className="flex items-center justify-between border-b px-2 py-4">
@@ -69,22 +86,27 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
         </form>
         
         <div className="flex items-center justify-center">
-          {!runState?.runId ? (
-            <Button className="cursor-pointer" onClick={handleRun} disabled={isPending}>
-              {isPending ? <Loader2 className="animate-spin" /> : <Play />}
-              {isPending ? "Running..." : "Run"}
+          {isPending || (!!runState?.runId && run?.status !== "COMPLETED" && run?.status !== "FAILED") ? (
+            <Button size="sm" disabled className="cursor-pointer gap-1.5">
+              <RunStatusIcon status={run?.status} />
+              {isPending || run?.status ? "Running..." : "Waiting..."}
+            </Button>
+          ) : runState?.runId && run?.status === "COMPLETED" ? (
+            <Button size="sm" variant="outline" className="cursor-pointer gap-1.5" onClick={handleReset} title="Run again">
+              <RunStatusIcon status="COMPLETED" />
+              Completed
+              {countdown > 0 && <span className="text-xs text-muted-foreground tabular-nums">({countdown}s)</span>}
+            </Button>
+          ) : runState?.runId && run?.status === "FAILED" ? (
+            <Button size="sm" variant="destructive" className="cursor-pointer gap-1.5" onClick={handleReset}>
+              <RunStatusIcon status="FAILED" />
+              Try again
             </Button>
           ) : (
-            <div className="flex flex-col items-center justify-between">
-              <RunStatusIcon status={run?.status} />
-              <span className="text-sm font-medium">{run?.status ?? "Waiting..."}</span>
-              {run?.status === "COMPLETED" && (
-                <span className="text-xs text-muted-foreground">{run.output?.message}</span>
-              )}
-              {run?.status === "FAILED" && (
-                <button onClick={handleReset} className="text-xs text-muted-foreground underline cursor-pointer">Try again</button>
-              )}
-            </div>
+            <Button size="sm" className="cursor-pointer gap-1.5" onClick={handleRun} disabled={isPending}>
+              {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
+              {isPending ? "Running..." : "Run"}
+            </Button>
           )}
         </div>
       </div>
@@ -151,8 +173,8 @@ function Toolbar({ addNode }: { addNode: AddNodeFn }) {
 }
 
 function RunStatusIcon({ status }: { status?: string }) {
-  if (!status) return <Timer className="size-5 text-muted-foreground animate-pulse" />
-  if (status === "COMPLETED") return <CheckCircle2 className="size-5 text-emerald-500" />
-  if (status === "FAILED") return <XCircle className="size-5 text-red-500" />
-  return <Loader2 className="size-5 text-muted-foreground animate-spin" />
+  if (!status) return <Timer className="size-3.5 text-muted-foreground animate-pulse" />
+  if (status === "COMPLETED") return <CheckCircle2 className="size-3.5 text-emerald-500" />
+  if (status === "FAILED") return <XCircle className="size-3.5 text-red-500" />
+  return <Loader2 className="size-3.5 text-muted-foreground animate-spin" />
 }

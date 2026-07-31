@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { nodeDefinitions } from "../node-registry"
+import { nodeDefinitions } from "../nodes/node-registry"
 
 const modelCategories: Record<string, string[]> = {
   Groq: ["llama-3.3-70b-versatile"],

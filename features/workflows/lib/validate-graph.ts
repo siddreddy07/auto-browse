@@ -1,5 +1,5 @@
 import { workflowGraph } from "@/lib/schema";
-import { nodeDefinitions } from "@/features/workflows/node-registry";
+import { nodeDefinitions } from "@/features/workflows/nodes/node-registry";
 import toposort from "toposort"
 
 

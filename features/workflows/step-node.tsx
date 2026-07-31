@@ -1,7 +1,7 @@
 "use client"
 
 import { Handle, Position, type NodeProps } from "@xyflow/react"
-import { nodeDefinitions } from "./node-registry"
+import { nodeDefinitions } from "./nodes/node-registry"
 
 export function StepNode({ data, selected }: NodeProps) {
   const definition = nodeDefinitions.find((n) => n.type === (data.type || (data.definition as any)?.type))
