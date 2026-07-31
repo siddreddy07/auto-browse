@@ -71,7 +71,7 @@ export function Editor() {
           >
             <def.icon className="size-4" />
           </div>
-          <span className="text-sm font-medium">{def.label}</span>
+          <span className="text-sm font-medium">{String((node.data as any).displayLabel || def.label)}</span>
         </div>
       )}
       {def?.fields.length === 0 && (
