@@ -1,9 +1,15 @@
 export interface FieldDefinition {
   key: string
   label: string
+  type: string
   placeholder?: string
   multiline?: boolean
   required?: boolean
+}
+
+export interface NodeOutput {
+  path: string
+  label: string
 }
 
 import { Play, Globe, Mail, Bot, Database, Eye, MousePointerClick } from "lucide-react"
@@ -16,6 +22,7 @@ export interface NodeDefinition {
   icon: LucideIcon
   accent: string
   fields: FieldDefinition[]
+  output: NodeOutput[]
 }
 
 export const nodeDefinitions: NodeDefinition[] = [
@@ -26,6 +33,7 @@ export const nodeDefinitions: NodeDefinition[] = [
     icon: Play,
     accent: "#22c55e",
     fields: [],
+    output: [],
   },
   {
     type: "openurl",
@@ -34,7 +42,11 @@ export const nodeDefinitions: NodeDefinition[] = [
     icon: Globe,
     accent: "#3b82f6",
     fields: [
-      { key: "url", label: "URL", placeholder: "https://example.com", required: true },
+      { key: "url", label: "URL", type: "url", placeholder: "https://example.com", required: true },
+    ],
+    output: [
+      { path: "url", label: "Page URL" },
+      { path: "title", label: "Page Title" },
     ],
   },
   {
@@ -44,9 +56,14 @@ export const nodeDefinitions: NodeDefinition[] = [
     icon: Mail,
     accent: "#ef4444",
     fields: [
-      { key: "to", label: "To", placeholder: "user@example.com", required: true },
-      { key: "subject", label: "Subject", placeholder: "Workflow completed" },
-      { key: "body", label: "Body", placeholder: "Your workflow has finished.", multiline: true },
+      { key: "to", label: "To", type: "email", placeholder: "user@example.com", required: true },
+      { key: "subject", label: "Subject", type: "string", placeholder: "Workflow completed" },
+      { key: "body", label: "Body", type: "markdown", placeholder: "Your workflow has finished.", multiline: true },
+    ],
+    output: [
+      { path: "to", label: "Recipient" },
+      { path: "subject", label: "Subject" },
+      { path: "body", label: "Body" },
     ],
   },
   {
@@ -56,9 +73,13 @@ export const nodeDefinitions: NodeDefinition[] = [
     icon: Bot,
     accent: "#8b5cf6",
     fields: [
-      { key: "model", label: "Model", placeholder: "gpt-4o", required: true },
-      { key: "apiKey", label: "API Key", placeholder: "sk-..." },
-      { key: "prompt", label: "Prompt", placeholder: "Analyze the page content...", multiline: true, required: true },
+      { key: "model", label: "Model", type: "string", placeholder: "qwen3.5:9b" },
+      { key: "apiKey", label: "API Key", type: "string", placeholder: "sk-..." },
+      { key: "prompt", label: "Prompt", type: "string", placeholder: "Analyze the page content...", multiline: true, required: true },
+    ],
+    output: [
+      { path: "response", label: "AI Response" },
+      { path: "model", label: "Model Used" },
     ],
   },
   {
@@ -68,9 +89,10 @@ export const nodeDefinitions: NodeDefinition[] = [
     icon: Database,
     accent: "#f59e0b",
     fields: [
-      { key: "selector", label: "CSS Selector", placeholder: "table tr", required: true },
-      { key: "variable", label: "Save as", placeholder: "extractedData" },
+      { key: "selector", label: "CSS Selector", type: "string", placeholder: "table tr", required: true },
+      { key: "variable", label: "Save as", type: "string", placeholder: "extractedData" },
     ],
+    output: [],
   },
   {
     type: "observe",
@@ -79,9 +101,10 @@ export const nodeDefinitions: NodeDefinition[] = [
     icon: Eye,
     accent: "#06b6d4",
     fields: [
-      { key: "selector", label: "Element Selector", placeholder: ".target-class" },
-      { key: "event", label: "Event Type", placeholder: "click, change, mutation" },
+      { key: "selector", label: "Element Selector", type: "string", placeholder: ".target-class" },
+      { key: "event", label: "Event Type", type: "string", placeholder: "click, change, mutation" },
     ],
+    output: [],
   },
   {
     type: "act",
@@ -90,20 +113,26 @@ export const nodeDefinitions: NodeDefinition[] = [
     icon: MousePointerClick,
     accent: "#f97316",
     fields: [
-      { key: "action", label: "Action", placeholder: "click, type, scroll", required: true },
-      { key: "selector", label: "Target Selector", placeholder: "#my-button", required: true },
-      { key: "value", label: "Value (optional)", placeholder: "text to type" },
+      { key: "action", label: "Action", type: "string", placeholder: "click, type, scroll", required: true },
+      { key: "selector", label: "Target Selector", type: "string", placeholder: "#my-button", required: true },
+      { key: "value", label: "Value (optional)", type: "string", placeholder: "text to type" },
     ],
+    output: [],
   },
 ]
 
 
 import type { Node } from "@xyflow/react"
 
+export type NodeStatus = "pending" | "running" | "done" | "failed"
+
 export type StepNodeData = {
   type: string
   displayLabel?: string
-  [key: string]: string | undefined
+  output?: unknown
+  status?: NodeStatus
+  error?: string
+  [key: string]: string | unknown | undefined
 }
 
 export type StepNodeType = Node<StepNodeData>

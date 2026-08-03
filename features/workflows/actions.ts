@@ -3,7 +3,6 @@
 import { auth as clerkAuth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
-import type { helloWorldTask } from "@/trigger/example"
 import { auth, tasks, runs } from "@trigger.dev/sdk"
 import { createWorkflow, listWorkflows, deleteWorkflow, saveWorkflowGraph } from "./data"
 import { liveblocks } from "@/lib/liveblocks"
@@ -81,7 +80,7 @@ export async function runWorkflowAction({
   })
 
   const publicAccessToken = await auth.createPublicToken({
-    scopes: { read: { runs: [handle.id] } },
+    scopes: { read: { tags: [`workflow:${id}`], runs: [handle.id] } },
   })
 
   return { runId: handle.id, publicAccessToken }

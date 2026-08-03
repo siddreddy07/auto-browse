@@ -3,7 +3,6 @@
 import { useEffect, useState, useTransition, useCallback, useActionState } from "react"
 import { useStore, useReactFlow } from "@xyflow/react"
 import { useRealtimeRun } from "@trigger.dev/react-hooks"
-import type { helloWorldTask } from "@/trigger/example"
 import { Button } from "@/components/ui/button"
 import { ResizablePanel } from "@/components/ui/resizable"
 import { Play, Loader2, CheckCircle2, XCircle, Timer, Trash2 } from "lucide-react"
@@ -22,16 +21,9 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
   const [tab, setTab] = useState("toolbar")
   const [runState, setRunState] = useState<{ runId: string; publicAccessToken: string } | null>(null)
   const [isPending, startTransition] = useTransition()
-  const [countdown, setCountdown] = useState(0)
   const { getNodes, getEdges } = useReactFlow()
 
   const [deleteState, deleteAction, deletePending] = useActionState(deleteWorkflowAction, null)
-
-  const { run } = useRealtimeRun<typeof helloWorldTask>(runState?.runId, {
-    accessToken: runState?.publicAccessToken ?? "",
-    enabled: !!runState?.runId,
-    skipColumns: ["payload", "output"],
-  })
 
   useEffect(() => {
     setTab(selectedNode ? "editor" : "toolbar")
@@ -52,27 +44,14 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
       }
 
       const result = await runWorkflowAction({ id: workflowId, graph })
+
+      console.log('Run result : ',result)
+
       setRunState(result)
     })
   }, [workflowId, getNodes, getEdges])
 
   const handleReset = useCallback(() => setRunState(null), [])
-
-  const completed = !!runState?.runId && run?.status === "COMPLETED"
-
-  useEffect(() => {
-    if (!completed) {
-      setCountdown(0)
-      return
-    }
-    setCountdown(10)
-    const interval = setInterval(() => setCountdown((c) => (c > 1 ? c - 1 : 0)), 1000)
-    const timeout = setTimeout(handleReset, 10000)
-    return () => {
-      clearInterval(interval)
-      clearTimeout(timeout)
-    }
-  }, [completed, handleReset])
 
   return (
     <ResizablePanel defaultSize={320} minSize={280} maxSize={576} className="flex flex-col">
@@ -86,22 +65,8 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
         </form>
         
         <div className="flex items-center justify-center">
-          {isPending || (!!runState?.runId && run?.status !== "COMPLETED" && run?.status !== "FAILED") ? (
-            <Button size="sm" disabled className="cursor-pointer gap-1.5">
-              <RunStatusIcon status={run?.status} />
-              {isPending || run?.status ? "Running..." : "Waiting..."}
-            </Button>
-          ) : runState?.runId && run?.status === "COMPLETED" ? (
-            <Button size="sm" variant="outline" className="cursor-pointer gap-1.5" onClick={handleReset} title="Run again">
-              <RunStatusIcon status="COMPLETED" />
-              Completed
-              {countdown > 0 && <span className="text-xs text-muted-foreground tabular-nums">({countdown}s)</span>}
-            </Button>
-          ) : runState?.runId && run?.status === "FAILED" ? (
-            <Button size="sm" variant="destructive" className="cursor-pointer gap-1.5" onClick={handleReset}>
-              <RunStatusIcon status="FAILED" />
-              Try again
-            </Button>
+          {runState ? (
+            <RunControls runState={runState} onReset={handleReset} />
           ) : (
             <Button size="sm" className="cursor-pointer gap-1.5" onClick={handleRun} disabled={isPending}>
               {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
@@ -118,16 +83,83 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
             <TabsTrigger value="editor" className="flex-1">Editor</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="toolbar" className="overflow-auto p-2">
+          <TabsContent value="toolbar" className="min-h-0 flex-1 overflow-y-auto p-2">
             <Toolbar addNode={addNode} />
           </TabsContent>
 
-          <TabsContent value="editor" className="overflow-auto p-2">
+          <TabsContent value="editor" className="min-h-0 flex-1 overflow-y-auto p-2">
             <Editor />
           </TabsContent>
         </Tabs>
       </div>
     </ResizablePanel>
+  )
+}
+
+function RunControls({
+  runState,
+  onReset,
+}: {
+  runState: { runId: string; publicAccessToken: string }
+  onReset: () => void
+}) {
+  const { run, error } = useRealtimeRun(runState.runId, {
+    accessToken: runState.publicAccessToken,
+    skipColumns: ["payload", "output"],
+  })
+
+  const completed = run?.status === "COMPLETED"
+  const failed = run?.status === "FAILED"
+
+  const [countdown, setCountdown] = useState(0)
+
+  useEffect(() => {
+    if (!completed) {
+      setCountdown(0)
+      return
+    }
+    setCountdown(10)
+    const interval = setInterval(() => setCountdown((c) => (c > 1 ? c - 1 : 0)), 1000)
+    const timeout = setTimeout(onReset, 10000)
+    return () => {
+      clearInterval(interval)
+      clearTimeout(timeout)
+    }
+  }, [completed, onReset])
+
+  if (error) {
+    return (
+      <Button size="sm" variant="destructive" className="cursor-pointer gap-1.5" onClick={onReset} title={error.message}>
+        <XCircle className="size-3.5 text-red-500" />
+        Connection lost — retry
+      </Button>
+    )
+  }
+
+  if (completed) {
+    return (
+      <Button size="sm" variant="outline" className="cursor-pointer gap-1.5" onClick={onReset} title="Run again">
+        <RunStatusIcon status="COMPLETED" />
+        Completed
+        {countdown > 0 && <span className="text-xs text-muted-foreground tabular-nums">({countdown}s)</span>}
+      </Button>
+    )
+  }
+
+  if (failed) {
+    return (
+      <Button size="sm" variant="destructive" className="cursor-pointer gap-1.5" onClick={onReset}>
+        <RunStatusIcon status="FAILED" />
+        Try again
+      </Button>
+    )
+  }
+
+  return (
+    <Button size="sm" disabled className="cursor-pointer gap-1.5">
+      <RunStatusIcon status={run?.status} />
+      {run?.status ? "Running..." : "Waiting..."}
+    </Button>
   )
 }
 
