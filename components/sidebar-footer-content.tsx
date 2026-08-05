@@ -1,8 +1,9 @@
 "use client"
 
 import { UserButton, useUser } from "@clerk/nextjs"
+import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Store } from "lucide-react"
+import { CreditCard, Store } from "lucide-react"
 import { Bot } from "@/components/animate-ui/icons/bot"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -12,12 +13,14 @@ import {
   SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useOrgPlan } from "@/features/workflows/hooks/use-org-plan"
 
 export function SidebarFooterContent() {
   const { state } = useSidebar()
   const { user, isLoaded: userLoaded } = useUser()
   const pathname = usePathname()
   const router = useRouter()
+  const { isLoaded: planLoaded, isPro } = useOrgPlan()
 
   const expanded = state === "expanded"
 
@@ -57,30 +60,50 @@ export function SidebarFooterContent() {
         </Tabs>
       )}
       {expanded && <SidebarSeparator />}
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            tooltip="Account"
-            className={expanded ? "" : "justify-center"}
-          >
-            {userLoaded ? (
-              <>
-                <UserButton />
-                {expanded && user && (
-                  <span className="truncate text-sm">{user.fullName}</span>
-                )}
-              </>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="size-8 animate-pulse rounded-full bg-muted" />
-                {expanded && (
-                  <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-                )}
-              </div>
-            )}
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
+      <div className={expanded ? "flex w-full min-w-0 items-center justify-between gap-2" : "contents"}>
+        <SidebarMenu className={expanded ? "w-auto flex-none" : undefined}>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip={planLoaded ? (isPro ? "Pro plan" : "Free plan") : "Pricing"}
+              className={expanded ? "w-auto flex-none" : "justify-center"}
+            >
+              <Link href="/pricing">
+                <CreditCard className="size-3.5 shrink-0" />
+                {expanded &&
+                  (planLoaded ? (
+                    <span className="truncate text-[11px] leading-none">
+                      {isPro ? "Pro" : "Free"}
+                    </span>
+                  ) : (
+                    <span className="h-4 w-10 animate-pulse rounded bg-muted" />
+                  ))}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <SidebarMenu className={expanded ? "w-auto flex-none" : undefined}>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Account"
+              className={expanded ? "w-auto flex-none" : "justify-center"}
+            >
+              {userLoaded ? (
+                <>
+                  <UserButton />
+                </>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="size-8 animate-pulse rounded-full bg-muted" />
+                  {expanded && (
+                    <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+                  )}
+                </div>
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </div>
     </div>
   )
 }
