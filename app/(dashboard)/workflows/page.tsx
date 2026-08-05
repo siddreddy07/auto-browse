@@ -11,7 +11,7 @@ import { generateSlug } from "@/features/workflows/lib/generate-slug"
 import { useWorkflows } from "@/features/workflows/components/workflows-provider"
 
 export default function WorkflowsPage() {
-  const workflows = useWorkflows()
+  const { workflows } = useWorkflows()
   const [isPending, startTransition] = useTransition()
 
   function handleCreateWorkflow() {

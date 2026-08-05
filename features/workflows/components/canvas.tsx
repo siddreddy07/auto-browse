@@ -25,7 +25,7 @@ export type AddNodeFn = (type: string) => AddNodeResult
 
 const nodeTypes = { step: StepNode }
 
-export function Canvas({ onAddNodeReady }: { onAddNodeReady?: (fn: AddNodeFn) => void }) {
+export function Canvas({ onAddNodeReady, name }: { onAddNodeReady?: (fn: AddNodeFn) => void; name?: string }) {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const reactFlow = useReactFlow()
@@ -128,6 +128,11 @@ export function Canvas({ onAddNodeReady }: { onAddNodeReady?: (fn: AddNodeFn) =>
             }
           `}
         </style>
+        <Panel position="top-left">
+          <span className="rounded-md border bg-card/80 px-2.5 py-1 text-sm font-medium text-foreground backdrop-blur">
+            {name}
+          </span>
+        </Panel>
         <Panel position="top-right">
           <AvatarStack size={24}/>
         </Panel>

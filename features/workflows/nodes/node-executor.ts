@@ -1,12 +1,15 @@
 import type { StagehandInstance } from "@/lib/stagehand"
 import type { StepNodeData } from "./node-registry"
 import { openUrl } from "./open-url"
-import { aiAgent, type ToNode } from "./ai-agent"
 import { sendEmail } from "./send-email"
+import { performAct } from "./act"
+import { performExtract } from "./extract"
+import { performObserve } from "./observe"
+import { performAgent } from "./agent"
 
 export interface NodeContext {
   from: StepNodeData[]
-  to: ToNode[]
+  to: { id: string; data: StepNodeData }[]
 }
 
 export type NodeExecutor = (
@@ -17,14 +20,14 @@ export type NodeExecutor = (
 
 const executors: Record<string, NodeExecutor> = {
   openurl: (stagehand, data) => openUrl({ stagehand, url: String(data.url ?? "") }),
-  agent: (_stagehand, data, context) =>
-    aiAgent({
-      model: typeof data.model === "string" ? data.model : undefined,
-      apiKey: typeof data.apiKey === "string" ? data.apiKey : undefined,
-      prompt: String(data.prompt ?? ""),
-      from: context.from,
-      to: context.to,
-    }),
+  act: (stagehand, data) =>
+    performAct({ stagehand, instruction: String(data.instruction ?? "") }),
+  extract: (stagehand, data) =>
+    performExtract({ stagehand, instruction: String(data.instruction ?? "") }),
+  observe: (stagehand, data) =>
+    performObserve({ stagehand, instruction: String(data.instruction ?? "") }),
+  agent: (stagehand, data) =>
+    performAgent({ stagehand, instruction: String(data.instruction ?? "") }),
   "send-email": (_stagehand, data) =>
     sendEmail({
       to: String(data.to ?? ""),

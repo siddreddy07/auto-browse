@@ -15,6 +15,27 @@
       "when": 1785230362436,
       "tag": "0001_public_power_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785910149605,
+      "tag": "0002_red_carnage",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785911667596,
+      "tag": "0003_even_grandmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785911701221,
+      "tag": "0004_skinny_hannibal_king",
+      "breakpoints": true
     }
   ]
 }

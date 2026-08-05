@@ -21,6 +21,7 @@ export interface NodeDefinition {
   label: string
   icon: LucideIcon
   accent: string
+  desc: string
   fields: FieldDefinition[]
   output: NodeOutput[]
 }
@@ -32,6 +33,7 @@ export const nodeDefinitions: NodeDefinition[] = [
     label: "Start",
     icon: Play,
     accent: "#22c55e",
+    desc: "Entry point of the workflow. A run begins here and flows through the connected nodes.",
     fields: [],
     output: [],
   },
@@ -41,6 +43,7 @@ export const nodeDefinitions: NodeDefinition[] = [
     label: "Open URL",
     icon: Globe,
     accent: "#3b82f6",
+    desc: "Opens a page in the browser and captures the resulting URL and page title.",
     fields: [
       { key: "url", label: "URL", type: "url", placeholder: "https://example.com", required: true },
     ],
@@ -55,6 +58,7 @@ export const nodeDefinitions: NodeDefinition[] = [
     label: "Send Email",
     icon: Mail,
     accent: "#ef4444",
+    desc: "Sends an email to the given recipient with a subject and body.",
     fields: [
       { key: "to", label: "To", type: "email", placeholder: "user@example.com", required: true },
       { key: "subject", label: "Subject", type: "string", placeholder: "Workflow completed" },
@@ -69,17 +73,17 @@ export const nodeDefinitions: NodeDefinition[] = [
   {
     type: "agent",
     kind: "action",
-    label: "AI Agent",
+    label: "Agent",
     icon: Bot,
     accent: "#8b5cf6",
+    desc: "Runs an autonomous, multi-step browser task from a plain-language instruction.",
     fields: [
-      { key: "model", label: "Model", type: "string", placeholder: "qwen3.5:9b" },
-      { key: "apiKey", label: "API Key", type: "string", placeholder: "sk-..." },
-      { key: "prompt", label: "Prompt", type: "string", placeholder: "Analyze the page content...", multiline: true, required: true },
+      { key: "instruction", label: "Instruction", type: "string", placeholder: "Navigate to the dashboard and export this month's report. Use {{outputKey}} to reference an upstream output.", multiline: true, required: true },
     ],
     output: [
-      { path: "response", label: "AI Response" },
-      { path: "model", label: "Model Used" },
+      { path: "success", label: "Succeeded" },
+      { path: "message", label: "Summary" },
+      { path: "completed", label: "Completed" },
     ],
   },
   {
@@ -88,11 +92,13 @@ export const nodeDefinitions: NodeDefinition[] = [
     label: "Extract Data",
     icon: Database,
     accent: "#f59e0b",
+    desc: "Pulls data off the current page by describing what you want in plain language.",
     fields: [
-      { key: "selector", label: "CSS Selector", type: "string", placeholder: "table tr", required: true },
-      { key: "variable", label: "Save as", type: "string", placeholder: "extractedData" },
+      { key: "instruction", label: "Instruction", type: "string", placeholder: "Extract all product names and prices. Use {{outputKey}} to reference an upstream output.", multiline: true, required: true },
     ],
-    output: [],
+    output: [
+      { path: "extraction", label: "Extracted Data" },
+    ],
   },
   {
     type: "observe",
@@ -100,11 +106,13 @@ export const nodeDefinitions: NodeDefinition[] = [
     label: "Observe",
     icon: Eye,
     accent: "#06b6d4",
+    desc: "Finds the actionable elements matching a plain-language instruction and returns their selectors and descriptions.",
     fields: [
-      { key: "selector", label: "Element Selector", type: "string", placeholder: ".target-class" },
-      { key: "event", label: "Event Type", type: "string", placeholder: "click, change, mutation" },
+      { key: "instruction", label: "Instruction", type: "string", placeholder: "Find the sign in button and the search input. Use {{outputKey}} to reference an upstream output.", multiline: true, required: true },
     ],
-    output: [],
+    output: [
+      { path: "matches", label: "Matches" },
+    ],
   },
   {
     type: "act",
@@ -112,12 +120,15 @@ export const nodeDefinitions: NodeDefinition[] = [
     label: "Act",
     icon: MousePointerClick,
     accent: "#f97316",
+    desc: "Performs an action on the page (click, type, scroll) from a plain-language instruction.",
     fields: [
-      { key: "action", label: "Action", type: "string", placeholder: "click, type, scroll", required: true },
-      { key: "selector", label: "Target Selector", type: "string", placeholder: "#my-button", required: true },
-      { key: "value", label: "Value (optional)", type: "string", placeholder: "text to type" },
+      { key: "instruction", label: "Instruction", type: "string", placeholder: "Click the sign in button. Use {{outputKey}} to reference an upstream output.", multiline: true, required: true },
     ],
-    output: [],
+    output: [
+      { path: "success", label: "Succeeded" },
+      { path: "message", label: "Message" },
+      { path: "url", label: "Page URL" },
+    ],
   },
 ]
 
@@ -132,6 +143,7 @@ export type StepNodeData = {
   output?: unknown
   status?: NodeStatus
   error?: string
+  durationMs?: number
   [key: string]: string | unknown | undefined
 }
 

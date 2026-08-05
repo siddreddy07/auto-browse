@@ -5,9 +5,10 @@ import { ReactFlowProvider } from "@xyflow/react"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Canvas } from "./canvas"
 import { RightSidebar } from "./right-sidebar"
+import { TopologyPanel } from "./topology-panel"
 import type { AddNodeFn } from "./canvas"
 
-export function WorkflowShell({ workflowId }: { workflowId: string }) {
+export function WorkflowShell({ workflowId, name }: { workflowId: string; name?: string }) {
   const addNodeRef = useRef<AddNodeFn>(undefined)
 
   const handleAddNodeReady = useCallback((fn: AddNodeFn) => {
@@ -20,10 +21,10 @@ export function WorkflowShell({ workflowId }: { workflowId: string }) {
         <ResizablePanelGroup orientation="horizontal" className="flex flex-1">
           <ResizablePanel minSize={480}>
             <ResizablePanelGroup orientation="vertical" className="flex flex-1 flex-col">
-              <Canvas onAddNodeReady={handleAddNodeReady} />
+              <Canvas onAddNodeReady={handleAddNodeReady} name={name} />
               <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={128} minSize={96} className="flex items-center justify-center p-4 text-sm text-muted-foreground">
-                Output
+              <ResizablePanel defaultSize={320} minSize={260} className="overflow-hidden">
+                <TopologyPanel workflowId={workflowId} name={name} />
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>

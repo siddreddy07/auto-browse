@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { workflowGraph, workflows } from "@/lib/schema";
+import { runStatusEnum, runs, workflowGraph, workflows } from "@/lib/schema";
 import { and, desc, eq } from "drizzle-orm";
 import { validateGraph } from "./lib/validate-graph";
 
@@ -64,4 +64,40 @@ export async function saveWorkflowGraph({
           .set({graph,updatedAt: new Date()})
           .where(and(eq(workflows.id,id),eq(workflows.orgId,orgId)))
   
+}
+
+export type RunStatus = typeof runStatusEnum.enumValues[number]
+
+export async function createRun({
+  id,
+  orgId,
+  workflowId,
+  userId,
+}: {
+  id: string
+  orgId: string
+  workflowId: string
+  userId?: string
+}) {
+  const [run] = await db
+    .insert(runs)
+    .values({ id, orgId, workflowId, userId, status: "running" })
+    .returning()
+
+  return run
+}
+
+export async function updateRunStatus(id: string, status: RunStatus) {
+  await db
+    .update(runs)
+    .set({ status, updatedAt: new Date() })
+    .where(eq(runs.id, id))
+}
+
+export function listRuns(orgId: string, workflowId: string) {
+  return db
+    .select()
+    .from(runs)
+    .where(and(eq(runs.orgId, orgId), eq(runs.workflowId, workflowId)))
+    .orderBy(desc(runs.createdAt))
 }

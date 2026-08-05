@@ -4,7 +4,7 @@ import { auth as clerkAuth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { auth, tasks, runs } from "@trigger.dev/sdk"
-import { createWorkflow, listWorkflows, deleteWorkflow, saveWorkflowGraph } from "./data"
+import { createWorkflow, listWorkflows, deleteWorkflow, saveWorkflowGraph, listRuns } from "./data"
 import { liveblocks } from "@/lib/liveblocks"
 import { workflowGraph } from "@/lib/schema"
 import { runWorkflowTask } from "./tasks/run-workflow"
@@ -63,7 +63,7 @@ export async function runWorkflowAction({
   id:string,
   graph:workflowGraph
 }) {
-  const { orgId } = await clerkAuth()
+  const { orgId, userId } = await clerkAuth()
 
   if (!orgId) {
     throw new Error("No active organization")
@@ -73,7 +73,7 @@ export async function runWorkflowAction({
 
 
   const handle = await tasks.trigger<typeof runWorkflowTask>("run-workflow", {
-      workflowId: id, orgId
+      workflowId: id, orgId, userId
   },{
     tags: [`workflow:${id}`]
 
@@ -84,6 +84,16 @@ export async function runWorkflowAction({
   })
 
   return { runId: handle.id, publicAccessToken }
+}
+
+export async function getWorkflowRunsAction(workflowId: string) {
+  const { orgId } = await clerkAuth()
+
+  if (!orgId) {
+    return []
+  }
+
+  return listRuns(orgId, workflowId)
 }
 
 export async function cancelWorkflowRun(runId:string) {

@@ -18,7 +18,7 @@ export default async function DashboardLayout({
 
   return (
       <SidebarProvider className="h-svh">
-        <AppSidebar workflows={workflows} agents={agents} />
+        <AppSidebar workflows={workflows} />
         <SidebarInset>
           <WorkflowsProvider workflows={workflows}>
             <AgentsProvider agents={agents}>

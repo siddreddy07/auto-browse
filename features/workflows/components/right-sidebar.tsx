@@ -5,8 +5,25 @@ import { useStore, useReactFlow } from "@xyflow/react"
 import { useRealtimeRun } from "@trigger.dev/react-hooks"
 import { Button } from "@/components/ui/button"
 import { ResizablePanel } from "@/components/ui/resizable"
-import { Play, Loader2, CheckCircle2, XCircle, Timer, Trash2 } from "lucide-react"
+import { Play, Loader2, CheckCircle2, XCircle, Timer, Info } from "lucide-react"
+import { Trash } from "@/components/animate-ui/icons/trash"
+import { AnimateIcon } from "@/components/animate-ui/icons/icon"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card"
 import { runWorkflowAction, deleteWorkflowAction } from "../actions"
+import { useWorkflows } from "./workflows-provider"
+import { runWorkflowTask } from "../tasks/run-workflow"
 
 import { toast } from "sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -22,6 +39,7 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
   const [runState, setRunState] = useState<{ runId: string; publicAccessToken: string } | null>(null)
   const [isPending, startTransition] = useTransition()
   const { getNodes, getEdges } = useReactFlow()
+  const { setRunSessionId } = useWorkflows()
 
   const [deleteState, deleteAction, deletePending] = useActionState(deleteWorkflowAction, null)
 
@@ -56,17 +74,47 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
   return (
     <ResizablePanel defaultSize={320} minSize={280} maxSize={576} className="flex flex-col">
       <div className="flex items-center justify-between border-b px-2 py-4">
-        <form action={deleteAction}>
-          <input type="hidden" name="workflowId" value={workflowId} />
-          <Button variant="ghost" size="sm" className="cursor-pointer gap-1.5 text-destructive hover:text-destructive" disabled={deletePending}>
-            {deletePending ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
-            Delete Workflow
-          </Button>
-        </form>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <AnimateIcon asChild animateOnHover>
+              <Button variant="ghost" size="sm" className="cursor-pointer gap-1.5 text-destructive hover:text-destructive">
+                {deletePending ? <Loader2 className="size-3.5 animate-spin" /> : <Trash size={14} />}
+                Delete Workflow
+              </Button>
+            </AnimateIcon>
+          </AlertDialogTrigger>
+          <AlertDialogContent size="sm">
+            <AlertDialogHeader>
+              <AlertDialogMedia>
+                <Trash size={24} />
+              </AlertDialogMedia>
+              <AlertDialogTitle>Delete workflow?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the workflow and its associated data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <form action={deleteAction}>
+              <input type="hidden" name="workflowId" value={workflowId} />
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AnimateIcon asChild animateOnHover>
+                  <AlertDialogAction type="submit" variant="destructive" disabled={deletePending}>
+                    {deletePending ? <Loader2 className="size-3.5 animate-spin" /> : <Trash size={14} />}
+                    Delete
+                  </AlertDialogAction>
+                </AnimateIcon>
+              </AlertDialogFooter>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
         
         <div className="flex items-center justify-center">
           {runState ? (
-            <RunControls runState={runState} onReset={handleReset} />
+            <RunControls
+              runState={runState}
+              onReset={handleReset}
+              onSessionId={(sessionId) => setRunSessionId(runState.runId, sessionId)}
+            />
           ) : (
             <Button size="sm" className="cursor-pointer gap-1.5" onClick={handleRun} disabled={isPending}>
               {isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
@@ -96,20 +144,47 @@ export function RightSidebar({ workflowId, addNode }: { workflowId: string; addN
   )
 }
 
+const TERMINAL_STATUSES = new Set([
+  "COMPLETED",
+  "FAILED",
+  "CANCELED",
+  "CRASHED",
+  "SYSTEM_FAILURE",
+  "TIMED_OUT",
+  "EXPIRED",
+])
+
 function RunControls({
   runState,
   onReset,
+  onSessionId,
 }: {
   runState: { runId: string; publicAccessToken: string }
   onReset: () => void
+  onSessionId: (sessionId: string) => void
 }) {
-  const { run, error } = useRealtimeRun(runState.runId, {
+  const [settled, setSettled] = useState(false)
+  const { run, error } = useRealtimeRun<typeof runWorkflowTask>(runState.runId, {
     accessToken: runState.publicAccessToken,
-    skipColumns: ["payload", "output"],
+    skipColumns: ["payload"],
+    onComplete: () => setSettled(true),
   })
 
-  const completed = run?.status === "COMPLETED"
-  const failed = run?.status === "FAILED"
+  const terminal =
+    settled ||
+    Boolean(run?.finishedAt) ||
+    (run?.status ? TERMINAL_STATUSES.has(run.status) : false)
+
+  const completed = terminal && run?.status === "COMPLETED"
+  const failed = terminal && !completed
+
+  const sessionId = run?.output?.browserbaseSessionId
+
+  useEffect(() => {
+    if (completed && sessionId) {
+      onSessionId(sessionId)
+    }
+  }, [completed, sessionId, onSessionId])
 
   const [countdown, setCountdown] = useState(0)
 
@@ -127,15 +202,6 @@ function RunControls({
     }
   }, [completed, onReset])
 
-  if (error) {
-    return (
-      <Button size="sm" variant="destructive" className="cursor-pointer gap-1.5" onClick={onReset} title={error.message}>
-        <XCircle className="size-3.5 text-red-500" />
-        Connection lost — retry
-      </Button>
-    )
-  }
-
   if (completed) {
     return (
       <Button size="sm" variant="outline" className="cursor-pointer gap-1.5" onClick={onReset} title="Run again">
@@ -151,6 +217,15 @@ function RunControls({
       <Button size="sm" variant="destructive" className="cursor-pointer gap-1.5" onClick={onReset}>
         <RunStatusIcon status="FAILED" />
         Try again
+      </Button>
+    )
+  }
+
+  if (error) {
+    return (
+      <Button size="sm" variant="destructive" className="cursor-pointer gap-1.5" onClick={onReset} title={error.message}>
+        <XCircle className="size-3.5 text-red-500" />
+        Connection lost — retry
       </Button>
     )
   }
@@ -183,19 +258,24 @@ function Toolbar({ addNode }: { addNode: AddNodeFn }) {
           <AccordionTrigger className="cursor-pointer">{label}</AccordionTrigger>
           <AccordionContent className="space-y-1">
             {nodes.map((def) => (
-              <button
-                key={def.type}
-                onClick={() => handleAdd(def.type, def.label)}
-                className="flex cursor-pointer w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
-              >
-                <div
-                  className="flex size-5 items-center justify-center rounded"
-                  style={{ backgroundColor: def.accent + "20", color: def.accent }}
-                >
-                  <def.icon className="size-3" />
-                </div>
-                {def.label}
-              </button>
+              <HoverCard key={def.type}>
+                <HoverCardTrigger asChild>
+                  <button
+                    onClick={() => handleAdd(def.type, def.label)}
+                    className="flex cursor-pointer w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
+                  >
+                    <div
+                      className="flex size-5 items-center justify-center rounded"
+                      style={{ backgroundColor: def.accent + "20", color: def.accent }}
+                    >
+                      <def.icon className="size-3" />
+                    </div>
+                    {def.label}
+                    <Info className="ms-auto size-3.5 shrink-0 text-muted-foreground/50" />
+                  </button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-64 text-xs leading-relaxed">{def.desc}</HoverCardContent>
+              </HoverCard>
             ))}
           </AccordionContent>
         </AccordionItem>

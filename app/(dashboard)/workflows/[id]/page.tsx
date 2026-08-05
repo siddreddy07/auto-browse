@@ -27,7 +27,7 @@ export default async function WorkflowPage({
   return(
     <Room roomId={id}>
       <ReactFlowProvider>
-        <WorkflowShell workflowId={id} />
+        <WorkflowShell workflowId={id} name={workflow.name} />
       </ReactFlowProvider>
     </Room>
   )
