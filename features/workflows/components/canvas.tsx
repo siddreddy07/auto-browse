@@ -19,6 +19,8 @@ import { useLiveblocksFlow, Cursors } from "@liveblocks/react-flow"
 import { StepNode } from "../step-node"
 import { nodeDefinitions, type StepNodeData } from "../nodes/node-registry"
 import { AvatarStack } from "@liveblocks/react-ui"
+import { useOrgPlan } from "../hooks/use-org-plan"
+import { toast } from "sonner"
 
 export type AddNodeResult = { success: boolean; reason?: string }
 export type AddNodeFn = (type: string) => AddNodeResult
@@ -27,6 +29,7 @@ const nodeTypes = { step: StepNode }
 
 export function Canvas({ onAddNodeReady, name }: { onAddNodeReady?: (fn: AddNodeFn) => void; name?: string }) {
   const { resolvedTheme } = useTheme()
+  const { isPro, upgrade } = useOrgPlan()
   const [mounted, setMounted] = useState(false)
   const reactFlow = useReactFlow()
 
@@ -46,6 +49,14 @@ export function Canvas({ onAddNodeReady, name }: { onAddNodeReady?: (fn: AddNode
   const addNode = useCallback((type: string) => {
     const def = nodeDefinitions.find((d) => d.type === type)
     if (!def) return { success: false, reason: `Unknown node type: ${type}` }
+
+    if (def.premium && !isPro) {
+      toast(`The ${def.label} node requires the Pro plan`, {
+        description: "Upgrade to unlock premium nodes on your canvas.",
+        action: { label: "Upgrade", onClick: () => upgrade() },
+      })
+      return { success: false }
+    }
 
     if (def.kind === "trigger" && nodes.some((n) => n.data && n.data?.type === type)) {
       return { success: false, reason: `Only one "${def.label}" trigger allowed` }
@@ -75,7 +86,7 @@ export function Canvas({ onAddNodeReady, name }: { onAddNodeReady?: (fn: AddNode
 
     onNodesChange([{ type: "add", item: newNode } as any])
     return { success: true }
-  }, [nodes, onNodesChange, reactFlow])
+  }, [nodes, onNodesChange, reactFlow, isPro, upgrade])
 
   useEffect(() => {
     onAddNodeReady?.(addNode)

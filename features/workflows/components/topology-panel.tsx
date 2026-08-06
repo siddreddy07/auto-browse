@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useStore } from "@xyflow/react"
 import toposort from "toposort"
-import { CheckCircle2, Loader2, Play, Timer, XCircle } from "lucide-react"
+import { CheckCircle2, Crown, Loader2, Timer, XCircle } from "lucide-react"
 import { MarkdownViewer } from "@/components/ui/markdown"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -18,10 +19,12 @@ import { SessionReplay } from "./session-replay"
 import { getWorkflowRunsAction } from "../actions"
 import type { Run } from "@/lib/schema"
 import { useWorkflows } from "./workflows-provider"
+import { useOrgPlan } from "../hooks/use-org-plan"
 
 export function TopologyPanel({ workflowId, name }: { workflowId: string; name?: string }) {
   const nodes = useStore((s) => s.nodes)
   const edges = useStore((s) => s.edges)
+  const { isPro, upgrade } = useOrgPlan()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [runs, setRuns] = useState<Run[]>([])
   const [replaying, setReplaying] = useState<Run | null>(null)
@@ -48,7 +51,7 @@ export function TopologyPanel({ workflowId, name }: { workflowId: string; name?:
       const data = await getWorkflowRunsAction(workflowId)
       if (!cancelled) setRuns(data)
       for (const run of data) {
-        if (run.status === "success" && !replayReadyRef.current.has(run.id)) {
+        if (isPro && run.status === "success" && !replayReadyRef.current.has(run.id)) {
           void prefetchReplay(run.id)
         }
       }
@@ -59,7 +62,7 @@ export function TopologyPanel({ workflowId, name }: { workflowId: string; name?:
       cancelled = true
       clearInterval(interval)
     }
-  }, [workflowId, runSessionIds, prefetchReplay])
+  }, [workflowId, runSessionIds, prefetchReplay, isPro])
 
   const fallbackSessionLabel = useState(() => `Workflow`)[0]
 
@@ -135,16 +138,33 @@ export function TopologyPanel({ workflowId, name }: { workflowId: string; name?:
                       </span>
                       {run.status === "success" && (
                         <AnimateIcon asChild animateOnHover>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-6 cursor-pointer gap-1 px-2 text-[10px]"
-                            disabled={!replayPlaylists[run.id]}
-                            onClick={() => setReplaying(run)}
-                          >
-                            {replayPlaylists[run.id] ? <RotateCw size={12} /> : <Loader2 className="size-3 animate-spin" />}
-                            Replay
-                          </Button>
+                          {isPro ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 cursor-pointer gap-1 px-2 text-[10px]"
+                              disabled={!replayPlaylists[run.id]}
+                              onClick={() => setReplaying(run)}
+                            >
+                              {replayPlaylists[run.id] ? <RotateCw size={12} /> : <Loader2 className="size-3 animate-spin" />}
+                              Replay
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 cursor-pointer gap-1 px-2 text-[10px]"
+                              onClick={() => {
+                                toast("Session replay requires the Pro plan", {
+                                  description: "Upgrade to unlock session replays.",
+                                  action: { label: "Upgrade", onClick: () => upgrade() },
+                                })
+                              }}
+                            >
+                              <Crown className="size-3 text-amber-500" />
+                              Replay
+                            </Button>
+                          )}
                         </AnimateIcon>
                       )}
                     </div>

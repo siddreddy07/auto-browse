@@ -4,14 +4,20 @@ import { NextRequest } from "next/server"
 
 export const dynamic = "force-dynamic"
 
+const PRO_PLAN = "org:pro" as const
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> },
 ) {
-  const { orgId } = await auth()
+  const { orgId, has } = await auth()
 
   if (!orgId) {
     return new Response("Unauthorized", { status: 401 })
+  }
+
+  if (!has({ plan: PRO_PLAN })) {
+    return new Response("Session replay requires the Pro plan", { status: 403 })
   }
 
   const { sessionId } = await params

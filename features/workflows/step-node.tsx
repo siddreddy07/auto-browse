@@ -1,7 +1,7 @@
 "use client"
 
 import { Handle, Position, type NodeProps } from "@xyflow/react"
-import { Loader2, CheckCircle2, XCircle, Timer } from "lucide-react"
+import { Loader2, CheckCircle2, XCircle, Timer, Crown } from "lucide-react"
 import { nodeDefinitions, type NodeStatus } from "./nodes/node-registry"
 
 export function StepNode({ data, selected }: NodeProps) {
@@ -29,6 +29,7 @@ export function StepNode({ data, selected }: NodeProps) {
           <definition.icon className="size-4" />
         </div>
         <span className="truncate text-sm font-medium">{String(data.displayLabel || definition.label)}</span>
+        {definition.premium && <Crown className="ml-1 size-3 shrink-0 text-amber-500" />}
         <StatusIndicator status={status} />
       </div>
 

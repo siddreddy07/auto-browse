@@ -12,7 +12,7 @@ export interface NodeOutput {
   label: string
 }
 
-import { Play, Globe, Mail, Bot, Database, Eye, MousePointerClick } from "lucide-react"
+import { Play, Globe, Mail, Bot, Database, Eye, MousePointerClick, Clock } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export interface NodeDefinition {
@@ -24,6 +24,7 @@ export interface NodeDefinition {
   desc: string
   fields: FieldDefinition[]
   output: NodeOutput[]
+  premium?: boolean
 }
 
 export const nodeDefinitions: NodeDefinition[] = [
@@ -36,6 +37,22 @@ export const nodeDefinitions: NodeDefinition[] = [
     desc: "Entry point of the workflow. A run begins here and flows through the connected nodes.",
     fields: [],
     output: [],
+  },
+  {
+    type: "scheduler",
+    kind: "trigger",
+    label: "Scheduler",
+    icon: Clock,
+    accent: "#14b8a6",
+    premium: true,
+    desc: "Runs the workflow on a schedule. Set how often it repeats and for how long.",
+    fields: [
+      { key: "interval", label: "Interval", type: "string", placeholder: "1h, 6h, 1d", required: true },
+    ],
+    output: [
+      { path: "scheduledAt", label: "Scheduled At" },
+      { path: "runCount", label: "Run Count" },
+    ],
   },
   {
     type: "openurl",
@@ -76,6 +93,7 @@ export const nodeDefinitions: NodeDefinition[] = [
     label: "Agent",
     icon: Bot,
     accent: "#8b5cf6",
+    premium: true,
     desc: "Runs an autonomous, multi-step browser task from a plain-language instruction.",
     fields: [
       { key: "instruction", label: "Instruction", type: "string", placeholder: "Navigate to the dashboard and export this month's report. Use {{outputKey}} to reference an upstream output.", multiline: true, required: true },

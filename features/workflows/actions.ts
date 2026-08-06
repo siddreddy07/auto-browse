@@ -7,7 +7,11 @@ import { auth, tasks, runs } from "@trigger.dev/sdk"
 import { createWorkflow, listWorkflows, deleteWorkflow, saveWorkflowGraph, listRuns } from "./data"
 import { liveblocks } from "@/lib/liveblocks"
 import { workflowGraph } from "@/lib/schema"
+import { nodeDefinitions } from "./nodes/node-registry"
 import { runWorkflowTask } from "./tasks/run-workflow"
+
+const PRO_PLAN = "org:pro" as const
+const PREMIUM_NODE_TYPES = new Set(nodeDefinitions.filter((n) => n.premium).map((n) => n.type))
 
 export async function getWorkflows() {
   const { orgId } = await clerkAuth()
@@ -63,10 +67,20 @@ export async function runWorkflowAction({
   id:string,
   graph:workflowGraph
 }) {
-  const { orgId, userId } = await clerkAuth()
+  const { orgId, userId, has } = await clerkAuth()
 
   if (!orgId) {
     throw new Error("No active organization")
+  }
+
+  const usesPremiumNode = (graph.nodes ?? []).some((node) =>
+    PREMIUM_NODE_TYPES.has(node.data?.type ?? "")
+  )
+
+  if (usesPremiumNode && !has({ plan: PRO_PLAN })) {
+    throw new Error(
+      "This workflow uses premium nodes, which require the Pro plan. Upgrade to Pro to run it."
+    )
   }
 
   await saveWorkflowGraph({orgId,id,graph})

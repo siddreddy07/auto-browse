@@ -5,9 +5,10 @@ import { useStore, useReactFlow } from "@xyflow/react"
 import { useRealtimeRun } from "@trigger.dev/react-hooks"
 import { Button } from "@/components/ui/button"
 import { ResizablePanel } from "@/components/ui/resizable"
-import { Play, Loader2, CheckCircle2, XCircle, Timer, Info } from "lucide-react"
+import { Play, Loader2, CheckCircle2, XCircle, Timer, Info, Lock, Crown } from "lucide-react"
 import { Trash } from "@/components/animate-ui/icons/trash"
 import { AnimateIcon } from "@/components/animate-ui/icons/icon"
+import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,7 @@ import { nodeDefinitions, type StepNodeType } from "../nodes/node-registry"
 import { Editor } from "./editor"
 import type { AddNodeFn } from "./canvas"
 import { validateGraph } from "../lib/validate-graph"
+import { useOrgPlan } from "../hooks/use-org-plan"
 
 export function RightSidebar({ workflowId, addNode }: { workflowId: string; addNode: AddNodeFn }) {
   const selectedNode = useStore((s) => s.nodes.find((n) => n.selected))
@@ -239,15 +241,16 @@ function RunControls({
 }
 
 function Toolbar({ addNode }: { addNode: AddNodeFn }) {
+  const { isPro } = useOrgPlan()
   const categories = [
     { value: "triggers", label: "Triggers", nodes: nodeDefinitions.filter((n) => n.kind === "trigger") },
     { value: "actions", label: "Actions", nodes: nodeDefinitions.filter((n) => n.kind === "action") },
   ] as const
 
-  const handleAdd = (type: string, label: string) => {
+  const handleAdd = (type: string) => {
     const result = addNode(type)
-    if (!result.success) {
-      toast.error(result.reason ?? "Failed to add node")
+    if (!result.success && result.reason) {
+      toast.error(result.reason)
     }
   }
 
@@ -257,26 +260,45 @@ function Toolbar({ addNode }: { addNode: AddNodeFn }) {
         <AccordionItem key={value} value={value}>
           <AccordionTrigger className="cursor-pointer">{label}</AccordionTrigger>
           <AccordionContent className="space-y-1">
-            {nodes.map((def) => (
-              <HoverCard key={def.type}>
-                <HoverCardTrigger asChild>
-                  <button
-                    onClick={() => handleAdd(def.type, def.label)}
-                    className="flex cursor-pointer w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
-                  >
-                    <div
-                      className="flex size-5 items-center justify-center rounded"
-                      style={{ backgroundColor: def.accent + "20", color: def.accent }}
+            {nodes.map((def) => {
+              const locked = Boolean(def.premium && !isPro)
+              return (
+                <HoverCard key={def.type}>
+                  <HoverCardTrigger asChild>
+                    <button
+                      onClick={() => handleAdd(def.type)}
+                      className={`flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted ${locked ? "opacity-70" : ""}`}
                     >
-                      <def.icon className="size-3" />
-                    </div>
-                    {def.label}
-                    <Info className="ms-auto size-3.5 shrink-0 text-muted-foreground/50" />
-                  </button>
-                </HoverCardTrigger>
-                <HoverCardContent className="w-64 text-xs leading-relaxed">{def.desc}</HoverCardContent>
-              </HoverCard>
-            ))}
+                      <div
+                        className="flex size-5 items-center justify-center rounded"
+                        style={{ backgroundColor: def.accent + "20", color: def.accent }}
+                      >
+                        <def.icon className="size-3" />
+                      </div>
+                      {def.label}
+                      {def.premium ? (
+                        <Badge variant="outline" className="ms-auto gap-1 px-1.5 text-[10px] font-semibold">
+                          <Crown className="text-amber-500" />
+                          Pro
+                        </Badge>
+                      ) : (
+                        <Info className="ms-auto size-3.5 shrink-0 text-muted-foreground/50" />
+                      )}
+                      {locked && <Lock className="size-3.5 shrink-0 text-muted-foreground/60" />}
+                    </button>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-64 text-xs leading-relaxed">
+                    {def.desc}
+                    {def.premium && (
+                      <p className="mt-1.5 flex items-center gap-1 font-medium text-amber-500">
+                        <Crown className="size-3" />
+                        {locked ? "Pro plan required" : "Premium · Pro"}
+                      </p>
+                    )}
+                  </HoverCardContent>
+                </HoverCard>
+              )
+            })}
           </AccordionContent>
         </AccordionItem>
       ))}
