@@ -8,13 +8,15 @@ const CTA_GRADIENT = "linear-gradient(to bottom, #2B2B2B, #101010)"
 
 function GetStartedButton({ className }: { className?: string }) {
   return (
-    <button
-      type="button"
-      className={className}
-      style={{ background: CTA_GRADIENT }}
-    >
-      Get started
-    </button>
+    <SignUpButton mode="modal">
+      <button
+        type="button"
+        className={className}
+        style={{ background: CTA_GRADIENT }}
+      >
+        Get started
+      </button>
+    </SignUpButton>
   )
 }
 

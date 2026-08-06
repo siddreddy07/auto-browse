@@ -19,13 +19,15 @@ const NAV_LINKS = [
 
 function GetStartedButton({ className }: { className?: string }) {
   return (
-    <button
-      type="button"
-      className={className}
-      style={{ background: CTA_GRADIENT }}
-    >
-      Get started
-    </button>
+    <SignUpButton mode="modal">
+      <button
+        type="button"
+        className={className}
+        style={{ background: CTA_GRADIENT }}
+      >
+        Get started
+      </button>
+    </SignUpButton>
   )
 }
 
