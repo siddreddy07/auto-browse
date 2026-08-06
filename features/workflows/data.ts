@@ -27,7 +27,7 @@ export async function createWorkflow(orgId: string, name: string) {
                             .values({
                               orgId,
                               name,
-                              graph: {},
+                              graph: { nodes: [], edges: [] },
                             })
                             .returning()
     

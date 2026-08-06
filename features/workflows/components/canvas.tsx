@@ -58,11 +58,11 @@ export function Canvas({ onAddNodeReady, name }: { onAddNodeReady?: (fn: AddNode
       return { success: false }
     }
 
-    if (def.kind === "trigger" && nodes.some((n) => n.data && n.data?.type === type)) {
+    if (def.kind === "trigger" && nodes.some((n) => n.data && (n.data as unknown as StepNodeData).type === type)) {
       return { success: false, reason: `Only one "${def.label}" trigger allowed` }
     }
 
-    const sameTypeCount = nodes.filter((n) => n.data && n.data?.type === type).length
+    const sameTypeCount = nodes.filter((n) => n.data && (n.data as unknown as StepNodeData).type === type).length
     const label = def.kind === "action" && sameTypeCount > 0
       ? `${def.label} ${sameTypeCount + 1}`
       : def.label
