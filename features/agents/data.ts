@@ -6,16 +6,10 @@ export async function createAgent({
   name,
   orgId,
   createdBy,
-  apiKey,
-  modelName,
-  prompt,
 }: {
   name: string;
   orgId: string | null;
   createdBy: string;
-  apiKey: string;
-  modelName: string;
-  prompt: string;
 }) {
   const [row] = await db
     .insert(agents)
@@ -23,9 +17,6 @@ export async function createAgent({
       name,
       orgId,
       createdBy,
-      apiKey,
-      modelName,
-      prompt,
     })
     .returning();
 

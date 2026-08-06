@@ -15,17 +15,7 @@ export async function getAgents() {
   return listAgents(orgId ?? null, userId)
 }
 
-export async function createAgentAction({
-  name,
-  apiKey,
-  modelName,
-  prompt,
-}: {
-  name: string;
-  apiKey: string;
-  modelName: string;
-  prompt: string;
-}) {
+export async function createAgentAction({ name }: { name: string }) {
   const { orgId, userId } = await auth()
 
   if (!userId) {
@@ -36,9 +26,6 @@ export async function createAgentAction({
     name,
     orgId: orgId ?? null,
     createdBy: userId,
-    apiKey,
-    modelName,
-    prompt,
   })
 
   revalidatePath("/(dashboard)", "layout")
