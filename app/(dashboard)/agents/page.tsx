@@ -68,7 +68,6 @@ export default function AgentsPage() {
               </NativeSelect>
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{agent.modelName || "No model"}</span>
               <span>{agent.createdAt.toLocaleDateString()}</span>
             </div>
           </Link>
