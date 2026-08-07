@@ -5,6 +5,7 @@ export interface FieldDefinition {
   placeholder?: string
   multiline?: boolean
   required?: boolean
+  references?: boolean
 }
 
 export interface NodeOutput {
@@ -12,7 +13,16 @@ export interface NodeOutput {
   label: string
 }
 
-import { Play, Globe, Mail, Bot, Database, Eye, MousePointerClick, Clock } from "lucide-react"
+import {
+  Play,
+  Globe,
+  Mail,
+  Bot,
+  Database,
+  Eye,
+  MousePointerClick,
+  Clock,
+} from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export interface NodeDefinition {
@@ -47,7 +57,13 @@ export const nodeDefinitions: NodeDefinition[] = [
     premium: true,
     desc: "Runs the workflow on a schedule. Set how often it repeats and for how long.",
     fields: [
-      { key: "interval", label: "Interval", type: "string", placeholder: "1h, 6h, 1d", required: true },
+      {
+        key: "interval",
+        label: "Interval",
+        type: "string",
+        placeholder: "1h, 6h, 1d",
+        required: true,
+      },
     ],
     output: [
       { path: "scheduledAt", label: "Scheduled At" },
@@ -62,7 +78,13 @@ export const nodeDefinitions: NodeDefinition[] = [
     accent: "#3b82f6",
     desc: "Opens a page in the browser and captures the resulting URL and page title.",
     fields: [
-      { key: "url", label: "URL", type: "url", placeholder: "https://example.com", required: true },
+      {
+        key: "url",
+        label: "URL",
+        type: "url",
+        placeholder: "https://example.com",
+        required: true,
+      },
     ],
     output: [
       { path: "url", label: "Page URL" },
@@ -75,17 +97,31 @@ export const nodeDefinitions: NodeDefinition[] = [
     label: "Send Email",
     icon: Mail,
     accent: "#ef4444",
-    desc: "Sends an email to the given recipient with a subject and body.",
+    desc: "Sends an email via Resend to the given recipient with a subject and body. No browser session required.",
     fields: [
-      { key: "to", label: "To", type: "email", placeholder: "user@example.com", required: true },
-      { key: "subject", label: "Subject", type: "string", placeholder: "Workflow completed" },
-      { key: "body", label: "Body", type: "markdown", placeholder: "Your workflow has finished.", multiline: true },
+      {
+        key: "to",
+        label: "To",
+        type: "email",
+        placeholder: "user@example.com",
+        required: true,
+      },
+      {
+        key: "subject",
+        label: "Subject",
+        type: "string",
+        placeholder: "Workflow completed",
+      },
+      {
+        key: "body",
+        label: "Body",
+        type: "markdown",
+        placeholder: "Your workflow has finished.",
+        multiline: true,
+        references: true,
+      },
     ],
-    output: [
-      { path: "to", label: "Recipient" },
-      { path: "subject", label: "Subject" },
-      { path: "body", label: "Body" },
-    ],
+    output: [{ path: "emailId", label: "Email ID" }],
   },
   {
     type: "agent",
@@ -96,7 +132,16 @@ export const nodeDefinitions: NodeDefinition[] = [
     premium: true,
     desc: "Runs an autonomous, multi-step browser task from a plain-language instruction.",
     fields: [
-      { key: "instruction", label: "Instruction", type: "string", placeholder: "Navigate to the dashboard and export this month's report. Use {{outputKey}} to reference an upstream output.", multiline: true, required: true },
+      {
+        key: "instruction",
+        label: "Instruction",
+        type: "string",
+        placeholder:
+          "Navigate to the dashboard and export this month's report. Use {{outputKey}} to reference an upstream output.",
+        multiline: true,
+        required: true,
+        references: true,
+      },
     ],
     output: [
       { path: "success", label: "Succeeded" },
@@ -112,11 +157,18 @@ export const nodeDefinitions: NodeDefinition[] = [
     accent: "#f59e0b",
     desc: "Pulls data off the current page by describing what you want in plain language.",
     fields: [
-      { key: "instruction", label: "Instruction", type: "string", placeholder: "Extract all product names and prices. Use {{outputKey}} to reference an upstream output.", multiline: true, required: true },
+      {
+        key: "instruction",
+        label: "Instruction",
+        type: "string",
+        placeholder:
+          "Extract all product names and prices. Use {{outputKey}} to reference an upstream output.",
+        multiline: true,
+        required: true,
+        references: true,
+      },
     ],
-    output: [
-      { path: "extraction", label: "Extracted Data" },
-    ],
+    output: [{ path: "extraction", label: "Extracted Data" }],
   },
   {
     type: "observe",
@@ -126,11 +178,18 @@ export const nodeDefinitions: NodeDefinition[] = [
     accent: "#06b6d4",
     desc: "Finds the actionable elements matching a plain-language instruction and returns their selectors and descriptions.",
     fields: [
-      { key: "instruction", label: "Instruction", type: "string", placeholder: "Find the sign in button and the search input. Use {{outputKey}} to reference an upstream output.", multiline: true, required: true },
+      {
+        key: "instruction",
+        label: "Instruction",
+        type: "string",
+        placeholder:
+          "Find the sign in button and the search input. Use {{outputKey}} to reference an upstream output.",
+        multiline: true,
+        required: true,
+        references: true,
+      },
     ],
-    output: [
-      { path: "matches", label: "Matches" },
-    ],
+    output: [{ path: "matches", label: "Matches" }],
   },
   {
     type: "act",
@@ -140,7 +199,16 @@ export const nodeDefinitions: NodeDefinition[] = [
     accent: "#f97316",
     desc: "Performs an action on the page (click, type, scroll) from a plain-language instruction.",
     fields: [
-      { key: "instruction", label: "Instruction", type: "string", placeholder: "Click the sign in button. Use {{outputKey}} to reference an upstream output.", multiline: true, required: true },
+      {
+        key: "instruction",
+        label: "Instruction",
+        type: "string",
+        placeholder:
+          "Click the sign in button. Use {{outputKey}} to reference an upstream output.",
+        multiline: true,
+        required: true,
+        references: true,
+      },
     ],
     output: [
       { path: "success", label: "Succeeded" },
@@ -149,7 +217,6 @@ export const nodeDefinitions: NodeDefinition[] = [
     ],
   },
 ]
-
 
 import type { Node } from "@xyflow/react"
 

@@ -1,3 +1,7 @@
+import { sendEmail as sendEmailWithResend } from "@/lib/resend"
+
+const FROM_ADDRESS = "onboarding@resend.dev"
+
 export async function sendEmail(fields: {
   to: string
   subject?: string
@@ -5,9 +9,12 @@ export async function sendEmail(fields: {
 }) {
   const { to, subject, body } = fields
 
-  return {
-    to,
+  const { id } = await sendEmailWithResend({
+    from: FROM_ADDRESS,
+    to: [to],
     subject: subject ?? "",
-    body: body ?? "",
-  }
+    text: body ?? "",
+  })
+
+  return { emailId: id }
 }

@@ -174,7 +174,7 @@ export function TopologyPanel({ workflowId, name }: { workflowId: string; name?:
             </AccordionItem>
           </Accordion>
         )}
-        <Accordion type="multiple" defaultValue={sessions.map((s) => s.id)} className="gap-2">
+        <Accordion type="multiple" defaultValue={sessions.map((s) => s.id)} className="gap-2 py-4 overflow-scroll min-h-64">
           {sessions.map((session) => (
             <AccordionItem key={session.id} value={session.id}>
               <AnimateIcon asChild animateOnHover>
