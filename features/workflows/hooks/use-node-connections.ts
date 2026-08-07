@@ -2,7 +2,11 @@
 
 import { useStore } from "@xyflow/react"
 import { Circle, type LucideIcon } from "lucide-react"
-import { nodeDefinitions, type NodeOutput, type StepNodeData } from "../nodes/node-registry"
+import {
+  nodeDefinitions,
+  type NodeOutput,
+  type StepNodeData,
+} from "../nodes/node-registry"
 
 export interface NodeConnection {
   id: string
@@ -10,6 +14,7 @@ export interface NodeConnection {
   label: string
   accent: string
   icon: LucideIcon
+  kind: "trigger" | "action"
   output: NodeOutput[]
   data: StepNodeData
 }
@@ -22,6 +27,7 @@ function toNodeConnection(id: string, data?: StepNodeData): NodeConnection {
     label: data?.displayLabel || def?.label || data?.type || "Unknown",
     accent: def?.accent ?? "#6b7280",
     icon: def?.icon ?? Circle,
+    kind: def?.kind ?? "action",
     output: def?.output ?? [],
     data: data ?? { type: "" },
   }
@@ -32,30 +38,21 @@ export function useNodeConnections(nodeId?: string) {
     if (!nodeId) return { ancestors: [], descendants: [] }
 
     const dataById = new Map<string, StepNodeData>()
-    for (const n of s.nodes) {
-      dataById.set(n.id, n.data as StepNodeData)
-    }
+    for (const n of s.nodes) dataById.set(n.id, n.data as StepNodeData)
 
-    const incoming: Record<string, string[]> = {}
-    const outgoing: Record<string, string[]> = {}
-    for (const edge of s.edges) {
-      ;(incoming[edge.target] ??= []).push(edge.source)
-      ;(outgoing[edge.source] ??= []).push(edge.target)
-    }
-
-    const collect = (direction: "in" | "out"): NodeConnection[] => {
-      const visited = new Set<string>()
-      const queue = [nodeId]
-      while (queue.length > 0) {
-        const current = queue.shift()!
-        const neighbors = direction === "in" ? incoming[current] : outgoing[current]
-        for (const neighbor of neighbors ?? []) {
-          if (visited.has(neighbor)) continue
-          visited.add(neighbor)
-          queue.push(neighbor)
+    const collect = (direction: "in" | "out") => {
+      const seen = new Set<string>()
+      const visit = (id: string) => {
+        for (const edge of s.edges) {
+          const from = direction === "in" ? edge.target : edge.source
+          const to = direction === "in" ? edge.source : edge.target
+          if (from !== id || seen.has(to)) continue
+          seen.add(to)
+          visit(to)
         }
       }
-      return [...visited].map((id) => toNodeConnection(id, dataById.get(id)))
+      visit(nodeId)
+      return [...seen].map((id) => toNodeConnection(id, dataById.get(id)))
     }
 
     return { ancestors: collect("in"), descendants: collect("out") }

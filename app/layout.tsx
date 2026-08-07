@@ -53,9 +53,9 @@ export const metadata: Metadata = {
     images: ["/assets/Thumbnail.png"],
   },
   icons: {
-    icon: "/assets/auto_browse_fav.jpeg",
-    shortcut: "/assets/auto_browse_fav.jpeg",
-    apple: "/assets/auto_browse_fav.jpeg",
+    icon: "/assets/auto_browse_fav-removebg-preview.png",
+    shortcut: "/assets/auto_browse_fav-removebg-preview.png",
+    apple: "/assets/auto_browse_fav-removebg-preview.png",
   },
   robots: {
     index: true,

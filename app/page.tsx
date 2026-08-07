@@ -349,11 +349,11 @@ function SiteFooter() {
               className="flex items-center gap-2 font-semibold tracking-tight text-white"
             >
               <Image
-                src="/assets/auto_browse_fav.jpeg"
+                src="/assets/auto_browse_fav-removebg-preview.png"
                 alt="AutoBrowse logo"
-                width={20}
-                height={20}
-                className="size-5 rounded-full object-cover"
+                width={30}
+                height={17}
+                className="h-4 w-auto object-contain"
               />
               AutoBrowse
             </Link>

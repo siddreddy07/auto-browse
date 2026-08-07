@@ -79,11 +79,11 @@ export function CinematicNav() {
       <nav className="flex items-center justify-between px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/assets/auto_browse_fav.jpeg"
+            src="/assets/auto_browse_fav-removebg-preview.png"
             alt="AutoBrowse logo"
-            width={24}
-            height={24}
-            className="size-6 rounded-full object-cover"
+            width={36}
+            height={20}
+            className="h-5 w-auto object-contain"
           />
           <span
             className={cn(

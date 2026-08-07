@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect } from "react"
 import { useStore, useReactFlow } from "@xyflow/react"
 import { ChevronDown, Check, Eye, Circle } from "lucide-react"
 import {
@@ -67,9 +67,6 @@ export function Editor() {
   const node = useStore((s) => s.nodes.find((n) => n.selected))
   const { updateNodeData } = useReactFlow()
   const { ancestors } = useNodeConnections(node?.id)
-  const inputRefs = useRef<
-    Record<string, HTMLInputElement | HTMLTextAreaElement | null>
-  >({})
 
   useEffect(() => {
     if (node) console.log("selected node:", node)
@@ -93,26 +90,11 @@ export function Editor() {
   )
 
   const insertToken = (fieldKey: string, token: string) => {
-    const el = inputRefs.current[fieldKey]
     const current = String(node.data[fieldKey] ?? "")
-    if (el) {
-      const start = el.selectionStart ?? current.length
-      const end = el.selectionEnd ?? current.length
-      const next = current.slice(0, start) + token + current.slice(end)
-      updateNodeData(node.id, { [fieldKey]: next })
-      requestAnimationFrame(() => {
-        el.focus()
-        const pos = start + token.length
-        el.setSelectionRange(pos, pos)
-      })
-    } else {
-      updateNodeData(node.id, { [fieldKey]: current + token })
-    }
+    updateNodeData(node.id, { [fieldKey]: current + token })
   }
 
-  const actionableAncestors = ancestors.filter(
-    (c) => nodeDefinitions.find((d) => d.type === c.type)?.kind === "action"
-  )
+  const actionableAncestors = ancestors.filter((c) => c.kind === "action")
 
   return (
     <div className="space-y-4 text-sm">
@@ -184,9 +166,6 @@ export function Editor() {
             </div>
             {field.multiline ? (
               <textarea
-                ref={(el) => {
-                  inputRefs.current[field.key] = el
-                }}
                 className="min-h-28 w-full resize-y rounded-md border bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-ring"
                 placeholder={field.placeholder}
                 value={String(node.data[field.key] ?? "")}
@@ -196,9 +175,6 @@ export function Editor() {
               />
             ) : (
               <input
-                ref={(el) => {
-                  inputRefs.current[field.key] = el
-                }}
                 className="w-full rounded-md border bg-background px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-ring"
                 placeholder={field.placeholder}
                 value={String(node.data[field.key] ?? "")}
@@ -227,8 +203,6 @@ function ReferenceChips({
   ancestors: NodeConnection[]
   onInsert: (token: string) => void
 }) {
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-
   return (
     <div className="space-y-1.5 rounded-md border bg-muted/30 p-1.5">
       <span className="text-[10px] font-medium text-muted-foreground">
@@ -236,56 +210,27 @@ function ReferenceChips({
       </span>
       <div className="flex flex-wrap gap-1">
         {ancestors.map((c) => {
-          const expanded = expandedId === c.id
           const Icon = c.icon ?? Circle
+          const token =
+            c.output.length > 0
+              ? c.output.map((out) => `{{${c.id}.${out.path}}}`).join(" ")
+              : `{{${c.id}}}`
           return (
-            <span key={c.id} className="flex flex-col items-stretch gap-0.5">
-              <button
-                type="button"
-                onClick={() => setExpandedId(expanded ? null : c.id)}
-                className="flex cursor-pointer items-center gap-1 rounded-full border bg-card px-2 py-0.5 text-[10px] hover:bg-muted"
-                title={
-                  expanded ? "Collapse outputs" : `Insert ${c.label} outputs`
-                }
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => onInsert(token)}
+              className="flex cursor-pointer items-center gap-1 rounded-full border bg-card px-2 py-0.5 text-[10px] hover:bg-muted"
+              title={`Insert ${c.label} outputs`}
+            >
+              <span
+                className="flex size-3 shrink-0 items-center justify-center rounded-full"
+                style={{ backgroundColor: c.accent + "20", color: c.accent }}
               >
-                <span
-                  className="flex size-3 shrink-0 items-center justify-center rounded-full"
-                  style={{ backgroundColor: c.accent + "20", color: c.accent }}
-                >
-                  <Icon className="size-2" />
-                </span>
-                <span className="truncate">{c.label}</span>
-                <ChevronDown
-                  className={`size-2.5 shrink-0 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
-                />
-              </button>
-              {expanded && (
-                <span className="flex flex-col gap-0.5 border-l pl-2">
-                  {c.output.length > 0 ? (
-                    c.output.map((out) => (
-                      <button
-                        key={out.path}
-                        type="button"
-                        onClick={() => onInsert(`{{${c.id}.${out.path}}}`)}
-                        className="flex cursor-pointer items-center gap-1 rounded border bg-background px-1.5 py-0.5 text-[9px] text-muted-foreground hover:bg-muted"
-                        title={`Insert {{${c.id}.${out.path}}}`}
-                      >
-                        <span className="truncate">{out.label}</span>
-                        <code className="truncate">{out.path}</code>
-                      </button>
-                    ))
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => onInsert(`{{${c.id}}}`)}
-                      className="cursor-pointer rounded border bg-background px-1.5 py-0.5 text-[9px] text-muted-foreground hover:bg-muted"
-                    >
-                      Insert node
-                    </button>
-                  )}
-                </span>
-              )}
-            </span>
+                <Icon className="size-2" />
+              </span>
+              <span className="truncate">{c.label}</span>
+            </button>
           )
         })}
       </div>
