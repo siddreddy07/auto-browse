@@ -1,11 +1,11 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { Show, SignUpButton } from "@clerk/nextjs"
 import { Menu, X } from "lucide-react"
 
-import { Bot } from "@/components/animate-ui/icons/bot"
 import { cn } from "@/lib/utils"
 
 const CTA_GRADIENT = "linear-gradient(to bottom, #2B2B2B, #101010)"
@@ -78,11 +78,12 @@ export function CinematicNav() {
     >
       <nav className="flex items-center justify-between px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
         <Link href="/" className="flex items-center gap-2">
-          <Bot
-            className={cn(
-              "size-6 transition-colors",
-              solid ? "text-white" : "text-[#010101] lg:text-white"
-            )}
+          <Image
+            src="/assets/auto_browse_fav.jpeg"
+            alt="AutoBrowse logo"
+            width={24}
+            height={24}
+            className="size-6 rounded-full object-cover"
           />
           <span
             className={cn(

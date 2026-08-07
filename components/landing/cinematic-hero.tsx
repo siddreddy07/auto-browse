@@ -25,7 +25,7 @@ export function CinematicHero() {
     <section className="relative h-screen w-full overflow-hidden bg-black">
       <Image
         aria-hidden
-        src="/moonlit.png"
+        src="/assets/moonlit.png"
         alt=""
         fill
         preload

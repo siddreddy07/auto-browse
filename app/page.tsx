@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { PricingTable } from "@clerk/nextjs"
@@ -17,7 +18,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Bot } from "@/components/animate-ui/icons/bot"
 import { CinematicHero } from "@/components/landing/cinematic-hero"
 import { CinematicNav } from "@/components/landing/cinematic-nav"
 import {
@@ -27,7 +27,34 @@ import {
 import { PrismaFeatures } from "@/components/landing/prisma-features"
 
 export const metadata: Metadata = {
-  title: "AutoBrowse",
+  title: "AI Browser Automation Workflows",
+  description:
+    "Build and run AI-powered browser automation workflows on a visual canvas. Describe a task in plain English — AutoBrowse drives a real cloud browser through open, act, extract, and observe steps, live.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "AI Browser Automation Workflows",
+    description:
+      "Compose open, act, extract, observe, and agent steps on a visual canvas — then run them live in a real cloud browser.",
+    url: "/",
+  },
+}
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "AutoBrowse",
+  url: "https://auto-browse-seven.vercel.app",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  description:
+    "Build and run AI-powered browser automation workflows on a visual canvas. Compose open, act, extract, observe, and agent steps, then run them live in a real cloud browser.",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
 }
 
 const steps = [
@@ -321,7 +348,13 @@ function SiteFooter() {
               href="/"
               className="flex items-center gap-2 font-semibold tracking-tight text-white"
             >
-              <Bot className="size-5" />
+              <Image
+                src="/assets/auto_browse_fav.jpeg"
+                alt="AutoBrowse logo"
+                width={20}
+                height={20}
+                className="size-5 rounded-full object-cover"
+              />
               AutoBrowse
             </Link>
             <p className="text-sm leading-relaxed text-white/50">
@@ -367,6 +400,12 @@ function SiteFooter() {
 export default function HomePage() {
   return (
     <div className="flex min-h-svh flex-col bg-black font-display">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <CinematicNav />
       <main id="main" className="flex flex-1 flex-col scroll-mt-24">
         <CinematicHero />

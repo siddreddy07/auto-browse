@@ -1,5 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs"
 import { shadcn } from "@clerk/ui/themes"
+import type { Metadata, Viewport } from "next"
 import { Almarai, Archivo_Black, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
@@ -7,6 +8,73 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+
+const SITE_URL = "https://auto-browse-seven.vercel.app"
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "AutoBrowse — AI Browser Automation",
+    template: "%s | AutoBrowse",
+  },
+  description:
+    "Build and run AI-powered browser automation workflows on a visual canvas. Compose open, act, extract, observe, and agent steps, then run them live in a real cloud browser powered by Stagehand.",
+  applicationName: "AutoBrowse",
+  keywords: [
+    "browser automation",
+    "AI agents",
+    "web scraping",
+    "workflow automation",
+    "no-code automation",
+    "visual workflow builder",
+    "Stagehand",
+    "AutoBrowse",
+  ],
+  authors: [{ name: "Siddharth", url: "https://github.com/siddreddy07" }],
+  creator: "Siddharth",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "AutoBrowse",
+    title: "AutoBrowse — AI Browser Automation",
+    description:
+      "Compose a graph of browser automation steps — open a URL, act, extract, observe, or run an autonomous agent — and execute it in a real cloud browser.",
+    images: ["/assets/Thumbnail.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AutoBrowse — AI Browser Automation",
+    description:
+      "Compose a graph of browser automation steps — open a URL, act, extract, observe, or run an autonomous agent — and execute it in a real cloud browser.",
+    images: ["/assets/Thumbnail.png"],
+  },
+  icons: {
+    icon: "/assets/auto_browse_fav.jpeg",
+    shortcut: "/assets/auto_browse_fav.jpeg",
+    apple: "/assets/auto_browse_fav.jpeg",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  category: "technology",
+}
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  colorScheme: "dark",
+}
 
 const almarai = Almarai({
   subsets: ["latin"],
