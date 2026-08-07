@@ -1,8 +1,7 @@
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { liveblocks } from "@/lib/liveblocks"
-import { NextRequest } from "next/server"
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   const { userId, orgId } = await auth()
 
   if (!userId) {
@@ -22,7 +21,16 @@ export async function POST(request: NextRequest) {
       userId,
       groupIds,
     },
-    { userInfo: { name: user?.fullName ?? user?.username ?? user?.primaryEmailAddress?.emailAddress ?? "Anonymous", avatar: user?.imageUrl ?? "" } },
+    {
+      userInfo: {
+        name:
+          user?.fullName ??
+          user?.username ??
+          user?.primaryEmailAddress?.emailAddress ??
+          "Anonymous",
+        avatar: user?.imageUrl ?? "",
+      },
+    }
   )
 
   return new Response(body, { status })

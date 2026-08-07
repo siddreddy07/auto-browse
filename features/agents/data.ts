@@ -1,15 +1,15 @@
-import { db } from "@/lib/db";
-import { agents, type Agent } from "@/lib/schema";
-import { desc, eq, isNull, or } from "drizzle-orm";
+import { db } from "@/lib/db"
+import { agents, type Agent } from "@/lib/schema"
+import { desc, eq, isNull, or } from "drizzle-orm"
 
 export async function createAgent({
   name,
   orgId,
   createdBy,
 }: {
-  name: string;
-  orgId: string | null;
-  createdBy: string;
+  name: string
+  orgId: string | null
+  createdBy: string
 }) {
   const [row] = await db
     .insert(agents)
@@ -18,15 +18,15 @@ export async function createAgent({
       orgId,
       createdBy,
     })
-    .returning();
+    .returning()
 
   return {
     ...row,
     shared: row.orgId === null,
-  } satisfies Agent;
+  } satisfies Agent
 }
 
-export async function listAgents(orgId: string | null, userId: string) {
+export async function listAgents(orgId: string | null) {
   const rows = await db
     .select()
     .from(agents)
@@ -35,24 +35,21 @@ export async function listAgents(orgId: string | null, userId: string) {
         ? or(eq(agents.orgId, orgId), isNull(agents.orgId))
         : isNull(agents.orgId)
     )
-    .orderBy(desc(agents.createdAt));
+    .orderBy(desc(agents.createdAt))
 
   return rows.map((row) => ({
     ...row,
     shared: row.orgId === null,
-  })) satisfies Agent[];
+  })) satisfies Agent[]
 }
 
 export async function getAgentById(id: string) {
-  const [row] = await db
-    .select()
-    .from(agents)
-    .where(eq(agents.id, id));
+  const [row] = await db.select().from(agents).where(eq(agents.id, id))
 
-  if (!row) return undefined;
+  if (!row) return undefined
 
   return {
     ...row,
     shared: row.orgId === null,
-  } satisfies Agent;
+  } satisfies Agent
 }

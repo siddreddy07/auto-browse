@@ -12,7 +12,7 @@ export async function getAgents() {
     return []
   }
 
-  return listAgents(orgId ?? null, userId)
+  return listAgents(orgId ?? null)
 }
 
 export async function createAgentAction({ name }: { name: string }) {

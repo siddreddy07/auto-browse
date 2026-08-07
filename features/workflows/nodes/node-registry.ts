@@ -35,6 +35,7 @@ export interface NodeDefinition {
   fields: FieldDefinition[]
   output: NodeOutput[]
   premium?: boolean
+  disabled?: boolean
 }
 
 export const nodeDefinitions: NodeDefinition[] = [
@@ -55,6 +56,7 @@ export const nodeDefinitions: NodeDefinition[] = [
     icon: Clock,
     accent: "#14b8a6",
     premium: true,
+    disabled: true,
     desc: "Runs the workflow on a schedule. Set how often it repeats and for how long.",
     fields: [
       {

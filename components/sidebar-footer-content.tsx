@@ -17,7 +17,7 @@ import { useOrgPlan } from "@/features/workflows/hooks/use-org-plan"
 
 export function SidebarFooterContent() {
   const { state } = useSidebar()
-  const { user, isLoaded: userLoaded } = useUser()
+  const { isLoaded: userLoaded } = useUser()
   const pathname = usePathname()
   const router = useRouter()
   const { isLoaded: planLoaded, isPro } = useOrgPlan()
@@ -39,19 +39,19 @@ export function SidebarFooterContent() {
             router.push(value === "agents" ? "/agents" : "/marketplace")
           }
           orientation="horizontal"
-          className="min-w-0 w-full items-center justify-center overflow-hidden"
+          className="w-full min-w-0 items-center justify-center overflow-hidden"
         >
-          <TabsList className="min-w-0 w-full overflow-hidden">
+          <TabsList className="w-full min-w-0 overflow-hidden">
             <TabsTrigger
               value="agents"
-              className="gap-1.5 cursor-pointer overflow-hidden data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-active:border-transparent data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-sidebar-accent"
+              className="cursor-pointer gap-1.5 overflow-hidden data-active:border-transparent data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-sidebar-accent"
             >
               <Bot className="size-4 shrink-0" />
               <span className="truncate">Agents</span>
             </TabsTrigger>
             <TabsTrigger
               value="marketplace"
-              className="gap-1.5 cursor-pointer overflow-hidden data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-active:border-transparent data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-sidebar-accent"
+              className="cursor-pointer gap-1.5 overflow-hidden data-active:border-transparent data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-sidebar-accent"
             >
               <Store className="size-4 shrink-0" />
               <span className="truncate">Marketplace</span>
@@ -60,12 +60,20 @@ export function SidebarFooterContent() {
         </Tabs>
       )}
       {expanded && <SidebarSeparator />}
-      <div className={expanded ? "flex w-full min-w-0 items-center justify-between gap-2" : "contents"}>
+      <div
+        className={
+          expanded
+            ? "flex w-full min-w-0 items-center justify-between gap-2"
+            : "contents"
+        }
+      >
         <SidebarMenu className={expanded ? "w-auto flex-none" : undefined}>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              tooltip={planLoaded ? (isPro ? "Pro plan" : "Free plan") : "Pricing"}
+              tooltip={
+                planLoaded ? (isPro ? "Pro plan" : "Free plan") : "Pricing"
+              }
               className={expanded ? "w-auto flex-none" : "justify-center"}
             >
               <Link href="/pricing">

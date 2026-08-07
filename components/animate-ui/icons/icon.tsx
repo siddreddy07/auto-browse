@@ -206,6 +206,7 @@ function AnimateIcon({
 
   React.useEffect(() => {
     if (animate === undefined) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentAnimation(typeof animate === 'string' ? animate : animation);
     if (animate) startAnimation(animate as TriggerProp);
     else stopAnimation();
@@ -240,6 +241,7 @@ function AnimateIcon({
 
   React.useEffect(() => {
     if (!animateOnView) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isInView) startAnimation(animateOnView);
     else stopAnimation();
   }, [isInView, animateOnView, startAnimation, stopAnimation]);
@@ -375,6 +377,7 @@ function AnimateIcon({
     React.isValidElement(children) ? (children as React.ReactElement).props : {}
   ) as AnyProps;
 
+  /* eslint-disable react-hooks/refs -- refs are read inside event handlers, not during render */
   const handleMouseEnter = composeEventHandlers<React.MouseEvent<HTMLElement>>(
     childProps.onMouseEnter,
     () => {
@@ -401,6 +404,7 @@ function AnimateIcon({
       if (animateOnTap) stopAnimation();
     },
   );
+  /* eslint-enable react-hooks/refs */
 
   const content = asChild ? (
     <Slot

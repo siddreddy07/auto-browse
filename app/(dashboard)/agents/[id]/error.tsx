@@ -1,15 +1,15 @@
 "use client"
 
 import { Bot } from "@/components/animate-ui/icons/bot"
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty"
 
-export default function AgentError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string }
-  reset: () => void
-}) {
+export default function AgentError({ reset }: { reset: () => void }) {
   return (
     <div className="flex flex-1 items-center justify-center p-6">
       <Empty>
@@ -20,7 +20,10 @@ export default function AgentError({
           <EmptyTitle>Something went wrong</EmptyTitle>
           <EmptyDescription>
             Failed to load agent.{" "}
-            <button onClick={reset} className="underline underline-offset-4 hover:text-primary cursor-pointer">
+            <button
+              onClick={reset}
+              className="cursor-pointer underline underline-offset-4 hover:text-primary"
+            >
               Try again
             </button>
           </EmptyDescription>
