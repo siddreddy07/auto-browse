@@ -26,6 +26,14 @@ npm run dev
 
 Open http://localhost:3000. Signed-in users land on `/workflows`, where you can create a workflow, add nodes, and hit **Run**.
 
+## Live Demo
+
+[**Auto Browse on Vercel**](https://auto-browse-seven.vercel.app/)
+
+### Demo Video
+
+https://res.cloudinary.com/dtgf2auzt/video/upload/v1786080445/Auto_browse_myxiwa.mp4
+
 ## Scripts
 
 | Command          | Description                                  |
