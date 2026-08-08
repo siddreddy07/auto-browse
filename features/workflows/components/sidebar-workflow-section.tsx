@@ -4,8 +4,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTransition } from "react"
 import { Plus } from "@/components/animate-ui/icons/plus"
-import { Route } from "@/components/animate-ui/icons/route"
-import { Loader2 } from "lucide-react"
+import { Route, RouteIcon } from "@/components/animate-ui/icons/route"
+import { Loader2, Menu } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   SidebarGroup,
@@ -20,6 +20,7 @@ import {
 import type { Workflow } from "@/lib/schema"
 import { createWorkflowAction } from "../actions"
 import { generateSlug } from "../lib/generate-slug"
+import { Ellipsis } from "@/components/animate-ui/icons/ellipsis"
 
 export function SidebarWorkflowSection({ workflows }: { workflows: Workflow[] }) {
   const pathname = usePathname()
@@ -54,10 +55,14 @@ export function SidebarWorkflowSection({ workflows }: { workflows: Workflow[] })
               workflows.map((workflow) => (
                 <SidebarMenuItem key={workflow.id}>
                   <SidebarMenuButton tooltip={workflow.name} asChild isActive={pathname === `/workflows/${workflow.id}`}>
-                    <Link href={`/workflows/${workflow.id}`}>
-                      <Route />
+                    
+                    <div className="w-full flex items-center justify-between"> 
+                      <Link className="flex items-center gap-2" href={`/workflows/${workflow.id}`}>
+                      <RouteIcon animateOnHover/>
                       <span>{workflow.name}</span>
                     </Link>
+                    <span className="cursor-pointer hover:bg-zinc-900 p-1 rounded-full"><Ellipsis animateOnHover /></span>  
+                      </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))

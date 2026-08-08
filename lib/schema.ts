@@ -26,10 +26,11 @@ export type Workflow = typeof workflows.$inferSelect
 export const agents = pgTable("agents", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
-  createdBy: text("created_by").notNull(),
+  userId: text("user_id").notNull(),
   orgId: text("org_id"),
   workflowId: text("workflow_id"),
-  shareLevel: shareLevelEnum("share_level").default("org").notNull(),
+  graph: jsonb("graph").$type<workflowGraph>(),
+  shareLevel: shareLevelEnum("share_level").default("restrict").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

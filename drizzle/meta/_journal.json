@@ -36,6 +36,13 @@
       "when": 1785911701221,
       "tag": "0004_skinny_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786096740495,
+      "tag": "0005_nappy_silhouette",
+      "breakpoints": true
     }
   ]
 }
