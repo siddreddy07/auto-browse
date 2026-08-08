@@ -16,7 +16,7 @@ export async function createAgent({
     .values({
       name,
       orgId,
-      createdBy,
+      userId: createdBy,
     })
     .returning()
 
