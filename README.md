@@ -32,7 +32,7 @@ Open http://localhost:3000. Signed-in users land on `/workflows`, where you can 
 
 ### Demo Video
 
-https://res.cloudinary.com/dtgf2auzt/video/upload/v1786080445/Auto_browse_myxiwa.mp4
+<video src="https://res.cloudinary.com/dtgf2auzt/video/upload/v1786080445/Auto_browse_myxiwa.mp4" controls preload="metadata" style="max-width: 100%; height: auto;"></video>
 
 ## Scripts
 
