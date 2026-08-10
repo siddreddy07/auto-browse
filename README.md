@@ -2,7 +2,7 @@
 
 Build and run **AI-powered browser automation workflows** on a visual canvas. Compose a graph of steps — open a URL, act, extract, observe, or run an autonomous agent — and execute it in a cloud browser powered by [Stagehand V3](https://stagehand.dev) and [Browserbase](https://www.browserbase.com). Runs stream live status and output back onto the canvas in real time, and every run can be replayed as video.
 
-<video controls preload="metadata" src="https://res.cloudinary.com/dtgf2auzt/video/upload/v1786080445/Auto_browse_myxiwa.mp4" style="max-width: 100%; height: auto;"></video>
+[![Watch Demo](https://res.cloudinary.com/dtgf2auzt/image/upload/v1786380217/Screenshot_2026-08-10_221255_kbdghw.png)](https://res.cloudinary.com/dtgf2auzt/video/upload/v1786080445/Auto_browse_myxiwa.mp4)
 
 ## Features
 
