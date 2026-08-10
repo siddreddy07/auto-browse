@@ -2,6 +2,8 @@
 
 Build and run **AI-powered browser automation workflows** on a visual canvas. Compose a graph of steps — open a URL, act, extract, observe, or run an autonomous agent — and execute it in a cloud browser powered by [Stagehand V3](https://stagehand.dev) and [Browserbase](https://www.browserbase.com). Runs stream live status and output back onto the canvas in real time, and every run can be replayed as video.
 
+<video controls preload="metadata" src="https://res.cloudinary.com/dtgf2auzt/video/upload/v1786080445/Auto_browse_myxiwa.mp4" style="max-width: 100%; height: auto;"></video>
+
 ## Features
 
 - **Visual workflow builder** — a collaborative [React Flow](https://reactflow.dev) canvas where you wire a single start trigger to action nodes: `open-url`, `act`, `extract`, `observe`, `agent`, and `send-email`. Editable node fields, cycle detection, and graph validation.
@@ -29,10 +31,6 @@ Open http://localhost:3000. Signed-in users land on `/workflows`, where you can 
 ## Live Demo
 
 [**Auto Browse on Vercel**](https://auto-browse-seven.vercel.app/)
-
-### Demo Video
-
-<video src="https://res.cloudinary.com/dtgf2auzt/video/upload/v1786080445/Auto_browse_myxiwa.mp4" controls preload="metadata" style="max-width: 100%; height: auto;"></video>
 
 ## Scripts
 
