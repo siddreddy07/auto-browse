@@ -115,7 +115,7 @@ export function TopologyPanel({ workflowId, name }: { workflowId: string; name?:
     <>
       <ResizablePanelGroup orientation="horizontal" className="size-full overflow-hidden">
       <ResizablePanel defaultSize={50} minSize={15} className="flex flex-col border-r">
-        <div className="min-h-0 flex-1 overflow-y-auto p-3">
+        <div className="min-h-0 flex-1 overflow-y-auto p-3 scrollbar-thin">
         {runs.length > 0 && (
           <Accordion type="multiple" defaultValue={[]} className="mb-3">
             <AccordionItem value="sessions">
@@ -174,7 +174,7 @@ export function TopologyPanel({ workflowId, name }: { workflowId: string; name?:
             </AccordionItem>
           </Accordion>
         )}
-        <Accordion type="multiple" defaultValue={sessions.map((s) => s.id)} className="gap-2 py-4 overflow-scroll min-h-64">
+        <Accordion type="multiple" defaultValue={sessions.map((s) => s.id)} className="gap-2 py-4 min-h-64">
           {sessions.map((session) => (
             <AccordionItem key={session.id} value={session.id}>
               <AnimateIcon asChild animateOnHover>
@@ -282,7 +282,7 @@ export function TopologyPanel({ workflowId, name }: { workflowId: string; name?:
                 {selectedHasError ? "Error" : "Output"}
               </span>
             </div>
-            <div className="mt-2 min-h-0 flex-1 overflow-y-auto rounded-md border bg-muted/30 p-2">
+            <div className="mt-2 min-h-0 flex-1 overflow-y-auto scrollbar-thin rounded-md border bg-muted/30 p-2">
               {selectedHasError ? (
                 <p className="whitespace-pre-wrap break-words text-xs text-red-500">{String(selectedData?.error)}</p>
               ) : (
@@ -392,7 +392,7 @@ function JsonView({ value }: { value: unknown }) {
   }, [json])
 
   return (
-    <pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-words font-mono text-xs leading-relaxed">
+    <pre className="max-w-full overflow-x-auto scrollbar-thin whitespace-pre-wrap break-words font-mono text-xs leading-relaxed">
       {parts}
     </pre>
   )
