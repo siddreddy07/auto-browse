@@ -1,8 +1,9 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, type ReactNode } from "react"
 import {
   motion,
+  useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
@@ -25,6 +26,10 @@ const wordVariants: Variants = {
   },
 }
 
+const revealViewport = { once: true, margin: "-80px" } as const
+
+type HeadingAs = "p" | "h1" | "h2" | "h3"
+
 function Word({
   word,
   last,
@@ -44,6 +49,88 @@ function Word({
   )
 }
 
+function WordsContainer({
+  as,
+  className,
+  children,
+}: {
+  as: HeadingAs
+  className?: string
+  children: ReactNode
+}) {
+  switch (as) {
+    case "h1":
+      return (
+        <motion.h1
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={revealViewport}
+          className={className}
+        >
+          {children}
+        </motion.h1>
+      )
+    case "h2":
+      return (
+        <motion.h2
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={revealViewport}
+          className={className}
+        >
+          {children}
+        </motion.h2>
+      )
+    case "h3":
+      return (
+        <motion.h3
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={revealViewport}
+          className={className}
+        >
+          {children}
+        </motion.h3>
+      )
+    default:
+      return (
+        <motion.p
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={revealViewport}
+          className={className}
+        >
+          {children}
+        </motion.p>
+      )
+  }
+}
+
+function StaticText({
+  as,
+  className,
+  children,
+}: {
+  as: HeadingAs
+  className?: string
+  children: ReactNode
+}) {
+  switch (as) {
+    case "h1":
+      return <h1 className={className}>{children}</h1>
+    case "h2":
+      return <h2 className={className}>{children}</h2>
+    case "h3":
+      return <h3 className={className}>{children}</h3>
+    default:
+      return <p className={className}>{children}</p>
+  }
+}
+
 export function WordsPullUp({
   text,
   className,
@@ -51,23 +138,29 @@ export function WordsPullUp({
 }: {
   text: string
   className?: string
-  as?: "p" | "h1" | "h2" | "h3"
+  as?: HeadingAs
 }) {
+  const prefersReducedMotion = useReducedMotion()
   const words = text.split(" ")
-  const MotionTag =
-    as === "h1" ? motion.h1 : as === "h2" ? motion.h2 : as === "h3" ? motion.h3 : motion.p
+
+  if (prefersReducedMotion) {
+    return (
+      <StaticText as={as} className={className}>
+        {text}
+      </StaticText>
+    )
+  }
+
   return (
-    <MotionTag
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
-      className={className}
-    >
+    <WordsContainer as={as} className={className}>
       {words.map((word, index) => (
-        <Word key={`${word}-${index}`} word={word} last={index === words.length - 1} />
+        <Word
+          key={`${word}-${index}`}
+          word={word}
+          last={index === words.length - 1}
+        />
       ))}
-    </MotionTag>
+    </WordsContainer>
   )
 }
 
@@ -78,37 +171,40 @@ export function WordsPullUpMultiStyle({
 }: {
   segments: { text: string; className?: string }[]
   className?: string
-  as?: "p" | "h1" | "h2" | "h3"
+  as?: HeadingAs
 }) {
-  const MotionTag =
-    as === "h1" ? motion.h1 : as === "h2" ? motion.h2 : as === "h3" ? motion.h3 : motion.p
-  return (
-    <MotionTag
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
-      className={className}
+  const prefersReducedMotion = useReducedMotion()
+
+  const children = segments.map((segment, segmentIndex) => (
+    <span
+      key={segmentIndex}
+      className={cn("inline-block whitespace-pre-wrap", segment.className)}
     >
-      {segments.map((segment, segmentIndex) => {
-        const words = segment.text.split(" ")
-        return (
-          <span
-            key={segmentIndex}
-            className={cn("inline-block whitespace-pre-wrap", segment.className)}
-          >
-            {words.map((word, wordIndex) => (
-              <Word
-                key={`${word}-${wordIndex}`}
-                word={word}
-                last={wordIndex === words.length - 1}
-              />
-            ))}
-            {segmentIndex < segments.length - 1 ? "\u00A0" : null}
-          </span>
-        )
-      })}
-    </MotionTag>
+      {prefersReducedMotion
+        ? segment.text
+        : segment.text.split(" ").map((word, wordIndex) => (
+            <Word
+              key={`${word}-${wordIndex}`}
+              word={word}
+              last={wordIndex === segment.text.split(" ").length - 1}
+            />
+          ))}
+      {segmentIndex < segments.length - 1 ? "\u00A0" : null}
+    </span>
+  ))
+
+  if (prefersReducedMotion) {
+    return (
+      <StaticText as={as} className={className}>
+        {children}
+      </StaticText>
+    )
+  }
+
+  return (
+    <WordsContainer as={as} className={className}>
+      {children}
+    </WordsContainer>
   )
 }
 
@@ -142,12 +238,21 @@ export function CharReveal({
   className?: string
 }) {
   const ref = useRef<HTMLParagraphElement>(null)
+  const prefersReducedMotion = useReducedMotion()
   const totalChars = text.length
 
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start 0.8", "end 0.2"],
   })
+
+  if (prefersReducedMotion) {
+    return (
+      <p ref={ref} className={className}>
+        {text}
+      </p>
+    )
+  }
 
   return (
     <p ref={ref} className={className}>

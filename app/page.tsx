@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Briefcase,
   Code2,
+  ExternalLink,
   Headset,
   Megaphone,
   Palette,
@@ -24,6 +25,7 @@ import {
   WordsPullUp,
   WordsPullUpMultiStyle,
 } from "@/components/landing/motion-text"
+import { ProductPreview } from "@/components/landing/product-preview"
 import { PrismaFeatures } from "@/components/landing/prisma-features"
 
 export const metadata: Metadata = {
@@ -61,7 +63,7 @@ const steps = [
   {
     title: "Create a workflow",
     description:
-      "Start from a template or a blank canvas and give your automation a name.",
+      "Start from a template or blank canvas and give your automation a name.",
   },
   {
     title: "Add steps",
@@ -97,25 +99,25 @@ const useCases = [
     icon: Megaphone,
     title: "Content & Marketing",
     description:
-      "Capture competitor pages, screenshots, and research before they disappear — then reuse it in seconds.",
+      "Capture competitor pages and research before they disappear — then reuse it in seconds.",
   },
   {
     icon: Headset,
     title: "Sales & Support",
     description:
-      "Enrich leads, auto-fill CRMs, and pull customer answers without switching tabs or digging through history.",
+      "Enrich leads, auto-fill CRMs, and pull customer answers without switching tabs.",
   },
   {
     icon: Briefcase,
     title: "Founders & Operators",
     description:
-      "Monitor competitors, run pricing sweeps, and keep investor notes in one searchable, visual history.",
+      "Monitor competitors, run pricing sweeps, and keep investor notes in one visual history.",
   },
   {
     icon: User,
     title: "Personal use",
     description:
-      "Handle bill pay, form filling, and data entry that no one else wants to do — automatically.",
+      "Handle bill pay, form filling, and data entry no one else wants to do — automatically.",
   },
 ]
 
@@ -152,32 +154,99 @@ const faqs = [
   },
 ]
 
+function SectionHeader({
+  index,
+  eyebrow,
+  title,
+  description,
+}: {
+  index: string
+  eyebrow: string
+  title: string
+  description?: string
+}) {
+  return (
+    <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="max-w-2xl">
+        <p className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.22em] text-indigo-400">
+          <span className="text-zinc-600" aria-hidden>
+            {index}
+          </span>
+          {eyebrow}
+        </p>
+        <WordsPullUp
+          as="h2"
+          text={title}
+          className="mt-4 max-w-2xl text-3xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-4xl"
+        />
+      </div>
+      {description ? (
+        <p className="max-w-sm text-sm leading-relaxed text-zinc-500 md:pb-1">
+          {description}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
 function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="scroll-mt-24 border-t border-white/10 bg-black py-24 sm:py-32"
+      className="scroll-mt-24 bg-zinc-950 px-4 py-12 sm:px-6 md:py-16 lg:px-8 lg:py-24"
     >
-      <div className="mx-auto w-full max-w-6xl px-6">
-        <WordsPullUp
-          as="h2"
-          text="From idea to running in minutes."
-          className="max-w-2xl text-3xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl"
+      <div className="mx-auto w-full max-w-[1200px]">
+        <SectionHeader
+          index="02"
+          eyebrow="How it works"
+          title="From idea to running in minutes."
+          description="Four steps between you and an automation that works while you sleep."
         />
-        <div className="mt-16 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((step, index) => (
-            <div key={step.title} className="flex flex-col items-start gap-3">
-              <span className="text-5xl text-white/25" aria-hidden>
-                0{index + 1}
-              </span>
-              <h3 className="text-lg font-semibold tracking-tight text-white">
-                {step.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-white/50">
-                {step.description}
-              </p>
-            </div>
-          ))}
+        <div className="mt-8 border-t border-zinc-900" />
+
+        <div className="mt-10 flex flex-col lg:mt-14 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20">
+          <div className="mb-10 lg:mb-0 lg:sticky lg:top-32 lg:self-start">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-600">
+              No code required
+            </p>
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-zinc-500">
+              Describe, run, watch, and automate. That&rsquo;s the whole loop.
+            </p>
+            <Link
+              href="/workflows"
+              className="group mt-8 inline-flex items-center gap-2 text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+            >
+              Start building
+              <ArrowRight
+                className="size-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                aria-hidden
+              />
+            </Link>
+          </div>
+
+          <ol className="flex-1 space-y-4">
+            {steps.map((step, index) => (
+              <li
+                key={step.title}
+                className="flex items-stretch gap-4 rounded-xl border border-zinc-800 bg-zinc-900 p-5 transition-colors duration-300 hover:border-zinc-700 sm:gap-6 sm:p-6"
+              >
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-indigo-500 font-mono text-xs font-semibold text-white"
+                  aria-hidden
+                >
+                  0{index + 1}
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-base font-semibold tracking-tight text-white">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+                    {step.description}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </section>
@@ -186,33 +255,57 @@ function HowItWorks() {
 
 function UseCases() {
   return (
-    <section id="use-cases" className="scroll-mt-24 bg-black py-24 sm:py-32">
-      <div className="mx-auto w-full max-w-6xl px-6">
-        <WordsPullUpMultiStyle
-          as="h2"
-          className="max-w-2xl text-3xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl"
-          segments={[
-            { text: "One workflow. For" },
-            { text: "everyone" },
-            { text: "who clicks." },
-          ]}
-        />
+    <section
+      id="use-cases"
+      className="scroll-mt-24 bg-zinc-950 px-4 py-12 sm:px-6 md:py-16 lg:px-8 lg:py-24"
+    >
+      <div className="mx-auto w-full max-w-[1200px]">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.22em] text-indigo-400">
+              <span className="text-zinc-600" aria-hidden>
+                03
+              </span>
+              Use cases
+            </p>
+            <WordsPullUpMultiStyle
+              as="h2"
+              className="mt-4 max-w-2xl text-3xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-4xl"
+              segments={[
+                { text: "One workflow. For" },
+                { text: "everyone", className: "text-indigo-400" },
+                { text: "who clicks." },
+              ]}
+            />
+          </div>
+          <p className="max-w-sm text-sm leading-relaxed text-zinc-500 md:pb-1">
+            Built for the people who are tired of doing the repetitive clicks.
+          </p>
+        </div>
+        <div className="mt-8 border-t border-zinc-900" />
 
-        <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-x-14 gap-y-0 sm:grid-cols-2 lg:mt-14">
           {useCases.map((item) => (
             <div
               key={item.title}
-              className="group rounded-2xl bg-card-ink p-6 transition-colors duration-300 hover:bg-[#2a2a2a]"
+              className="group border-t border-zinc-900 py-6 transition-colors duration-300 last:border-b hover:border-zinc-700"
             >
-              <div className="flex size-9 items-center justify-center rounded-full ring-1 ring-white/20">
-                <item.icon className="size-4 text-white/70" />
+              <div className="flex items-start gap-4">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-900 ring-1 ring-zinc-800">
+                  <item.icon
+                    className="size-4 text-indigo-400"
+                    aria-hidden
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-semibold tracking-tight text-white">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-zinc-500">
+                    {item.description}
+                  </p>
+                </div>
               </div>
-              <h3 className="mt-5 text-lg font-semibold tracking-tight text-white">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/50">
-                {item.description}
-              </p>
             </div>
           ))}
         </div>
@@ -225,24 +318,25 @@ function Pricing() {
   return (
     <section
       id="pricing"
-      className="scroll-mt-24 border-t border-white/10 bg-black py-24 sm:py-32"
+      className="scroll-mt-24 bg-zinc-950 px-4 py-12 sm:px-6 md:py-16 lg:px-8 lg:py-24"
     >
-      <div className="mx-auto w-full max-w-6xl px-6">
-        <WordsPullUp
-          as="h2"
-          text="Simple pricing. Upgrade when you're ready."
-          className="max-w-2xl text-3xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl"
+      <div className="mx-auto w-full max-w-[1200px]">
+        <SectionHeader
+          index="04"
+          eyebrow="Pricing"
+          title="Simple pricing. Upgrade when you're ready."
+          description="Start free, no credit card required. Pro unlocks premium Agent nodes and session replays for teams that need more."
         />
-        <p className="mt-6 max-w-xl text-base leading-relaxed text-white/60">
-          Start free, no credit card required. Pro unlocks premium Agent nodes
-          and session replays for teams that need more.
-        </p>
-        <div className="mt-14 flex justify-center">
-          <PricingTable
-            for="organization"
-            highlightedPlan="pro"
-            newSubscriptionRedirectUrl="/pricing"
-          />
+        <div className="mt-8 border-t border-zinc-900" />
+
+        <div className="mt-10 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-10 sm:px-8 lg:mt-14 sm:py-14">
+          <div className="dark">
+            <PricingTable
+              for="organization"
+              highlightedPlan="pro"
+              newSubscriptionRedirectUrl="/pricing"
+            />
+          </div>
         </div>
       </div>
     </section>
@@ -253,144 +347,155 @@ function Faq() {
   return (
     <section
       id="faq"
-      className="scroll-mt-24 border-t border-white/10 bg-black py-24 sm:py-32"
+      className="scroll-mt-24 bg-zinc-950 px-4 py-12 sm:px-6 md:py-16 lg:px-8 lg:py-24"
     >
-      <div className="mx-auto grid w-full max-w-6xl gap-12 px-6 lg:grid-cols-[1fr_1.25fr] lg:gap-20">
-        <div className="flex flex-col items-start">
-          <WordsPullUpMultiStyle
-            as="h2"
-            className="text-3xl font-semibold leading-[1.1] tracking-tight text-white sm:text-5xl"
-            segments={[
-              { text: "Questions," },
-              { text: "answered." },
-            ]}
-          />
-          <p className="mt-6 max-w-sm text-base leading-relaxed text-white/60">
-            Everything you need to know before getting started with AutoBrowse.
-            Can&rsquo;t find your answer here? We&rsquo;re one message away.
-          </p>
-          <div className="mt-10 w-full rounded-2xl bg-card-ink p-6 sm:max-w-sm">
-            <p className="text-sm font-semibold text-white">Built in the open</p>
-            <p className="mt-2 text-sm leading-relaxed text-white/60">
-              AutoBrowse is open source — explore the code and contribute on
-              GitHub.
+      <div className="mx-auto w-full max-w-[1200px]">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
+          <div className="lg:sticky lg:top-32 lg:self-start">
+            <p className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.22em] text-indigo-400">
+              <span className="text-zinc-600" aria-hidden>
+                05
+              </span>
+              FAQ
+            </p>
+            <WordsPullUp
+              as="h2"
+              text="Questions, answered."
+              className="mt-4 max-w-md text-3xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-4xl"
+            />
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-zinc-500">
+              Everything you need to know before getting started. Can&rsquo;t
+              find your answer here? We&rsquo;re one message away.
             </p>
             <Link
               href="https://github.com/siddreddy07/auto-browse"
               target="_blank"
               rel="noopener noreferrer"
-              className="group mt-5 inline-flex items-center gap-2 text-sm font-medium text-white transition-colors hover:opacity-70"
+              className="group mt-8 inline-flex items-center gap-2 text-sm font-medium text-zinc-300 transition-colors hover:text-white"
             >
-              GitHub
-              <ArrowRight
-                className="size-4 -rotate-45 transition-transform duration-300 group-hover:rotate-0"
+              <ExternalLink
+                className="size-4 text-indigo-400 transition-transform duration-300 group-hover:translate-x-0.5"
                 aria-hidden
               />
+              Open source on GitHub
             </Link>
           </div>
-        </div>
 
-        <Accordion type="single" collapsible className="w-full">
-          {faqs.map((faq) => (
-            <AccordionItem
-              key={faq.question}
-              value={faq.question}
-              className="border-white/10"
-            >
-              <AccordionTrigger className="py-5 text-left text-base font-medium text-white">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="pr-6 text-white/60">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+          <div className="mt-10 border-t border-zinc-900 lg:mt-0 lg:border-t-0">
+            <Accordion type="single" collapsible className="w-full">
+              {faqs.map((faq, index) => (
+                <AccordionItem
+                  key={faq.question}
+                  value={faq.question}
+                  className="border-zinc-800"
+                >
+                  <AccordionTrigger className="gap-4 py-5 text-left text-sm font-semibold text-white sm:text-base">
+                    <span className="shrink-0 font-mono text-xs text-zinc-600" aria-hidden>
+                      0{index + 1}
+                    </span>
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="pl-9 text-sm leading-relaxed text-zinc-400">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
       </div>
     </section>
   )
 }
 
-const footerColumns = [
-  {
-    title: "Product",
-    links: [
-      { label: "Features", href: "#features" },
-      { label: "How it works", href: "#how-it-works" },
-      { label: "FAQ", href: "#faq" },
-      { label: "Pricing", href: "/pricing" },
-    ],
-  },
-  {
-    title: "Platform",
-    links: [
-      { label: "Workflows", href: "/workflows" },
-      { label: "Agents", href: "/agents" },
-      { label: "Marketplace", href: "/marketplace" },
-    ],
-  },
-  {
-    title: "Account",
-    links: [
-      { label: "Sign in", href: "/sign-in" },
-      { label: "Sign up", href: "/sign-up" },
-    ],
-  },
+function FinalCta() {
+  return (
+    <section className="bg-zinc-950 px-4 py-12 sm:px-6 md:py-16 lg:px-8 lg:py-24">
+      <div className="mx-auto w-full max-w-[1200px]">
+        <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
+          <div className="flex flex-col gap-8 px-6 py-12 sm:px-10 md:flex-row md:items-center md:justify-between md:py-16 lg:px-14">
+            <div className="max-w-lg">
+              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-indigo-400">
+                Final step
+              </p>
+              <h2 className="mt-4 text-balance text-3xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-4xl">
+                Put your browser on{" "}
+                <span className="text-indigo-400">autopilot today.</span>
+              </h2>
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-zinc-400 sm:text-base">
+                Create your first workflow in minutes. Free to start — no
+                credit card required.
+              </p>
+            </div>
+
+            <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto">
+              <Link
+                href="/sign-up"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-500 px-7 py-3.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-400 sm:w-auto"
+              >
+                Start free
+                <ArrowRight
+                  className="size-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                  aria-hidden
+                />
+              </Link>
+              <p className="text-center font-mono text-xs text-zinc-500 sm:text-left">
+                Free to start · Cancel anytime
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+const footerLinks = [
+  { label: "Workflows", href: "/workflows" },
+  { label: "Agents", href: "/agents" },
+  { label: "Marketplace", href: "/marketplace" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Sign in", href: "/sign-in" },
+  { label: "Sign up", href: "/sign-up" },
 ]
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-white/10 bg-black">
-      <div className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-20">
-        <div className="grid gap-12 md:grid-cols-[1.25fr_1fr_1fr_1fr] md:gap-8">
-          <div className="max-w-xs space-y-4">
-            <Link
-              href="/"
-              className="flex items-center gap-2 font-semibold tracking-tight text-white"
-            >
-              <Image
-                src="/assets/auto_browse_fav-removebg-preview.png"
-                alt="AutoBrowse logo"
-                width={30}
-                height={17}
-                className="h-4 w-auto object-contain"
-              />
+    <footer className="border-t border-zinc-900 bg-zinc-950">
+      <div className="mx-auto w-full max-w-[1200px] px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <Image
+              src="/assets/auto_browse_fav-removebg-preview.png"
+              alt="AutoBrowse logo"
+              width={30}
+              height={17}
+              className="h-4 w-auto object-contain"
+            />
+            <span className="text-sm font-semibold tracking-tight text-white">
               AutoBrowse
-            </Link>
-            <p className="text-sm leading-relaxed text-white/50">
-              Design multi-step automations that browse, extract, and act on
-              the web — powered by Stagehand.
-            </p>
+            </span>
           </div>
-          {footerColumns.map((column) => (
-            <nav key={column.title} aria-label={column.title}>
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/40">
-                {column.title}
-              </p>
-              <ul className="mt-4 flex flex-col gap-2.5">
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/60 transition-colors hover:text-white"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ))}
+          <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2">
+            {footerLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-sm text-zinc-400 transition-colors hover:text-white"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         </div>
-      </div>
-      <div className="border-t border-white/10">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-6 py-6 text-sm text-white/50 sm:flex-row">
+
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-zinc-900 pt-6 text-xs text-zinc-500 sm:flex-row">
           <span>© 2026 AutoBrowse</span>
           <span className="flex items-center gap-1.5">
             Made with <span className="animate-heartbeat">❤️</span> by
             Siddharth
           </span>
-          <span>Powered by Stagehand</span>
+          <span className="font-mono">Powered by Stagehand</span>
         </div>
       </div>
     </footer>
@@ -399,7 +504,7 @@ function SiteFooter() {
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-svh flex-col bg-black font-display">
+    <div className="flex min-h-svh flex-col bg-zinc-950">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -407,15 +512,15 @@ export default function HomePage() {
         }}
       />
       <CinematicNav />
-      <main id="main" className="flex flex-1 flex-col scroll-mt-24">
+      <main id="main" className="flex flex-1 flex-col">
         <CinematicHero />
-        <div className="dark">
-          <PrismaFeatures />
-          <HowItWorks />
-          <UseCases />
-          <Pricing />
-          <Faq />
-        </div>
+        <ProductPreview />
+        <PrismaFeatures />
+        <HowItWorks />
+        <UseCases />
+        <Pricing />
+        <Faq />
+        <FinalCta />
       </main>
       <SiteFooter />
     </div>
