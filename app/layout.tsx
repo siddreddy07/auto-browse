@@ -43,19 +43,21 @@ export const metadata: Metadata = {
     title: "AutoBrowse — AI Browser Automation",
     description:
       "Compose a graph of browser automation steps — open a URL, act, extract, observe, or run an autonomous agent — and execute it in a real cloud browser.",
-    images: ["/assets/Thumbnail.png"],
+    images: [
+      {
+        url: "/assets/og.png",
+        width: 1200,
+        height: 630,
+        alt: "AutoBrowse — AI browser automation",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "AutoBrowse — AI Browser Automation",
     description:
       "Compose a graph of browser automation steps — open a URL, act, extract, observe, or run an autonomous agent — and execute it in a real cloud browser.",
-    images: ["/assets/Thumbnail.png"],
-  },
-  icons: {
-    icon: "/assets/auto_browse_fav-removebg-preview.png",
-    shortcut: "/assets/auto_browse_fav-removebg-preview.png",
-    apple: "/assets/auto_browse_fav-removebg-preview.png",
+    images: ["/assets/og.png"],
   },
   robots: {
     index: true,

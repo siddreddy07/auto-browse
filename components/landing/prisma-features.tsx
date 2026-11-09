@@ -1,246 +1,283 @@
-"use client"
-
 import Link from "next/link"
-import { motion, MotionConfig } from "motion/react"
-import {
-  ArrowRight,
-  CalendarClock,
-  Check,
-  FileJson,
-  MousePointerClick,
-  Terminal,
-} from "lucide-react"
+import { ArrowRight, Plus } from "lucide-react"
 
-import { WordsPullUp } from "@/components/landing/motion-text"
+import { MobileTabs } from "@/components/landing/mobile-tabs"
+import { Reveal } from "@/components/landing/reveal"
 
-const terminalLines = [
-  { text: "> open https://shop.example.com", status: "done" },
-  { text: "> act \"click 'Add to cart'\"", status: "done" },
-  { text: "> extract product prices", status: "running" },
-  { text: "> observe pagination state", status: "waiting" },
-] as const
+/* -------------------------------------------------------------------------- */
+/*  Choose your autopilot                                                     */
+/* -------------------------------------------------------------------------- */
 
-function LivePanel() {
+function Bullet({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 sm:p-8">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-zinc-950 ring-1 ring-zinc-800">
-            <Terminal className="size-4 text-indigo-400" aria-hidden />
-          </span>
-          <div>
-            <h3 className="text-base font-semibold tracking-tight text-white">
-              Watch it work, live
-            </h3>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-600">
-              console · live session
-            </p>
-          </div>
-        </div>
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 font-mono text-[11px] text-emerald-500">
-          <span className="size-1 animate-pulse rounded-full bg-emerald-500 motion-reduce:hidden" />
-          LIVE
-        </span>
+    <li className="flex items-start gap-2.5 text-sm text-zinc-300">
+      <Plus
+        className="mt-0.5 size-3.5 shrink-0 text-indigo-300"
+        strokeWidth={3}
+        aria-hidden
+      />
+      {children}
+    </li>
+  )
+}
+
+function MiniSteps() {
+  const rows = ["open", "act", "extract"]
+  return (
+    <div
+      aria-hidden
+      className="absolute -right-10 bottom-0 top-8 hidden w-56 rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:block"
+    >
+      <div className="flex gap-1.5">
+        <span className="size-2 rounded-full bg-zinc-700" />
+        <span className="size-2 rounded-full bg-zinc-700" />
+        <span className="size-2 rounded-full bg-zinc-700" />
       </div>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
-        <div>
-          <p className="max-w-md text-sm leading-relaxed text-zinc-400">
-            Every step of your workflow runs in a real browser session you can
-            follow in real time. No black boxes, no mystery.
-          </p>
-          <ul className="mt-6 space-y-3.5">
-            {[
-              "A real Chromium session you can watch",
-              "Step-by-step logs as your workflow runs",
-              "Live screenshots at every stage",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-2.5 text-sm text-zinc-300">
-                <Check
-                  className="mt-0.5 size-4 shrink-0 text-emerald-500"
-                  strokeWidth={3}
-                  aria-hidden
-                />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 font-mono text-xs">
-          <p className="pb-2.5 text-[11px] uppercase tracking-[0.18em] text-zinc-600">
-            step log
-          </p>
-          <div className="space-y-2.5 border-t border-zinc-900 pt-3">
-            {terminalLines.map((line, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -6 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.3, delay: i * 0.06 }}
-                className="flex items-center gap-2"
-              >
-                {line.status === "done" ? (
-                  <Check
-                    className="size-3.5 shrink-0 text-emerald-500"
-                    strokeWidth={3}
-                    aria-hidden
-                  />
-                ) : line.status === "running" ? (
-                  <span className="relative flex size-3.5 shrink-0 items-center justify-center">
-                    <span className="absolute size-3.5 animate-ping rounded-full bg-indigo-500/40 motion-reduce:hidden" />
-                    <span className="size-1.5 rounded-full bg-indigo-400" />
-                  </span>
-                ) : (
-                  <span className="size-1.5 shrink-0 rounded-full bg-zinc-600" />
-                )}
-                <span
-                  className={
-                    line.status === "waiting" ? "text-zinc-600" : "text-zinc-300"
-                  }
-                >
-                  {line.text}
-                </span>
-              </motion.div>
-            ))}
+      <div className="mt-5 space-y-3 font-mono text-[11px] text-zinc-500">
+        {rows.map((r) => (
+          <div
+            key={r}
+            className="rounded-md border border-white/[0.07] bg-black/40 px-2.5 py-2"
+          >
+            <span className="text-indigo-300">{r}</span>
+            <span className="ml-2 inline-block h-1.5 w-12 rounded-full bg-zinc-700 align-middle" />
           </div>
-        </div>
+        ))}
       </div>
     </div>
   )
 }
 
-const features = [
-  {
-    icon: FileJson,
-    title: "Extract structured data",
-    description:
-      "Pull prices, listings, and records into clean JSON you can pipe anywhere.",
-    learnMore: "Explore extraction",
-    spec: (
-      <div className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2.5 font-mono text-[11px] leading-relaxed text-zinc-500">
-        <span className="text-zinc-400">{"{ "}</span>
-        <span className="text-indigo-400">&quot;title&quot;</span>
-        <span className="text-zinc-400">: &quot;iPhone 15&quot; </span>
-        <span className="text-zinc-400">{"}"}</span>
-      </div>
-    ),
-  },
-  {
-    icon: MousePointerClick,
-    title: "Act on any site",
-    description:
-      "Click buttons, fill forms, and complete flows across the web — reliably.",
-    learnMore: "See the actions",
-    spec: (
-      <div className="flex flex-wrap gap-1.5">
-        {["Click", "Type", "Select", "Scroll"].map((action) => (
-          <span
-            key={action}
-            className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 font-mono text-[11px] text-zinc-500"
+function TeamArt() {
+  const seats = ["A", "B", "C"]
+  return (
+    <div
+      aria-hidden
+      className="absolute -right-10 bottom-0 top-8 hidden w-56 rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:block"
+    >
+      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+        shared workspace
+      </p>
+      <div className="mt-5 space-y-3">
+        {seats.map((s, i) => (
+          <div
+            key={s}
+            className="flex items-center gap-3 rounded-md border border-white/[0.07] bg-black/40 px-2.5 py-2"
           >
-            {action}
-          </span>
+            <span className="flex size-5 items-center justify-center rounded-full bg-zinc-800 text-[10px] text-zinc-300">
+              {s}
+            </span>
+            <span
+              className="h-1.5 rounded-full bg-zinc-700"
+              style={{ width: `${70 - i * 16}%` }}
+            />
+          </div>
         ))}
       </div>
-    ),
-  },
-  {
-    icon: CalendarClock,
-    title: "Run on a schedule",
-    description:
-      "Trigger workflows on a timer, a webhook, or whenever your data changes.",
-    learnMore: "Automate your runs",
-    spec: (
-      <div className="flex items-center justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2.5">
-        <span className="font-mono text-[11px] text-zinc-500">
-          cron: every 6 hours
-        </span>
-        <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" aria-hidden />
-      </div>
-    ),
-  },
-]
+    </div>
+  )
+}
 
-export function PrismaFeatures() {
+const cardClass =
+  "relative h-full overflow-hidden rounded-3xl bg-[#111113] p-6 sm:p-8 md:min-h-[320px] md:p-9"
+
+function BuildersCard() {
+  return (
+    <div className={cardClass}>
+      <h3 className="text-2xl font-medium tracking-tight text-white sm:text-3xl">
+        For builders
+      </h3>
+      <p className="mt-2 max-w-sm text-sm text-zinc-400 md:max-w-[16rem]">
+        Turn the chores you repeat every week into one-click runs.
+      </p>
+      <ul className="mt-5 max-w-sm space-y-3 md:mt-6 md:max-w-[16rem]">
+        <Bullet>Describe steps in plain language</Bullet>
+        <Bullet>Watch each session live</Bullet>
+        <Bullet>Replay any run, any time</Bullet>
+      </ul>
+      <Link
+        href="/workflows"
+        className="group mt-6 inline-flex items-center gap-2 rounded-full bg-zinc-200 px-5 py-2.5 text-sm font-medium text-black transition-colors hover:bg-white md:mt-8"
+      >
+        Open the canvas
+        <ArrowRight
+          className="size-4 transition-transform group-hover:translate-x-0.5"
+          aria-hidden
+        />
+      </Link>
+      <MiniSteps />
+    </div>
+  )
+}
+
+function TeamsCard() {
+  return (
+    <div className={cardClass}>
+      <h3 className="text-2xl font-medium tracking-tight text-white sm:text-3xl">
+        For teams
+      </h3>
+      <p className="mt-2 max-w-sm text-sm text-zinc-400 md:max-w-[16rem]">
+        One shared workspace for every automation your team runs.
+      </p>
+      <ul className="mt-5 max-w-sm space-y-3 md:mt-6 md:max-w-[16rem]">
+        <Bullet>Co-edit workflows in real time</Bullet>
+        <Bullet>Schedule runs and collect results</Bullet>
+        <Bullet>Premium agents &amp; session replays</Bullet>
+      </ul>
+      <Link
+        href="#pricing"
+        className="group mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10 md:mt-8"
+      >
+        Compare plans
+        <ArrowRight
+          className="size-4 transition-transform group-hover:translate-x-0.5"
+          aria-hidden
+        />
+      </Link>
+      <TeamArt />
+    </div>
+  )
+}
+
+export function PickPilot() {
   return (
     <section
       id="features"
-      className="scroll-mt-24 bg-zinc-950 px-4 py-12 sm:px-6 md:py-16 lg:px-8 lg:py-24"
+      className="scroll-mt-24 px-4 pb-4 pt-12 sm:px-6 md:pt-24 lg:px-8"
     >
-      <MotionConfig reducedMotion="user">
-        <div className="mx-auto w-full max-w-[1200px]">
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.22em] text-indigo-400">
-                <span className="text-zinc-600" aria-hidden>
-                  01
-                </span>
-                Features
-              </p>
-              <WordsPullUp
-                as="h2"
-                text="Everything a browser can do. Now on autopilot."
-                className="mt-4 max-w-2xl text-3xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-4xl"
-              />
-            </div>
-            <p className="max-w-sm text-sm leading-relaxed text-zinc-500 md:pb-1">
-              Compose workflow steps by describing them in plain English — then
-              watch a real browser carry them out.
+      <div className="mx-auto w-full max-w-[1200px]">
+        <Reveal className="text-center">
+          <h2 className="text-[2rem] font-medium tracking-[-0.035em] text-zinc-900 sm:text-6xl">
+            Choose your <span className="text-indigo-600">autopilot</span>
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-zinc-500 sm:text-base">
+            From a one-off errand to a nightly fleet — AutoBrowse scales with
+            whoever is clicking.
+          </p>
+        </Reveal>
+
+        <Reveal className="mt-7 md:mt-10" delay={0.08}>
+          <MobileTabs
+            bp="md"
+            labels={["For builders", "For teams"]}
+            panels={[<BuildersCard key="b" />, <TeamsCard key="t" />]}
+            gridClassName="md:grid-cols-2 md:gap-4"
+          />
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Agent board (flat)                                                        */
+/* -------------------------------------------------------------------------- */
+
+type Task = { title: string; meta: string; progress?: number }
+
+const columns: { name: string; tone: string; tasks: Task[] }[] = [
+  {
+    name: "Queued",
+    tone: "bg-zinc-600",
+    tasks: [
+      {
+        title: "Collect pricing from 12 competitor pages",
+        meta: "Mon 09:00 · daily",
+      },
+      {
+        title: "Check 40 product listings for stock changes",
+        meta: "Hourly",
+      },
+    ],
+  },
+  {
+    name: "Running",
+    tone: "bg-indigo-300",
+    tasks: [
+      {
+        title: "Log in, export the invoice report, extract totals",
+        meta: "Step 3 of 5 · live",
+        progress: 3,
+      },
+    ],
+  },
+  {
+    name: "Delivered",
+    tone: "bg-emerald-400",
+    tasks: [
+      { title: "24 records captured · 0 errors", meta: "JSON · 2.1 KB" },
+      { title: "Weekly lead enrichment", meta: "118 rows · CSV" },
+    ],
+  },
+]
+
+function BoardColumn({ col }: { col: (typeof columns)[number] }) {
+  return (
+    <div className="md:p-5">
+      <p className="hidden items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-zinc-400 md:flex">
+        <span className={`size-1.5 rounded-full ${col.tone}`} />
+        {col.name}
+        <span className="ml-auto font-mono text-zinc-600">
+          {col.tasks.length}
+        </span>
+      </p>
+      <div className="space-y-3 md:mt-4">
+        {col.tasks.map((task) => (
+          <div
+            key={task.title}
+            className="rounded-xl border border-white/10 bg-[#0b0b0d] p-4"
+          >
+            <p className="text-sm leading-snug text-white">{task.title}</p>
+            {task.progress ? (
+              <div className="mt-3 flex gap-1" aria-hidden>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <span
+                    key={n}
+                    className={
+                      "h-1 flex-1 rounded-full " +
+                      (n <= task.progress! ? "bg-indigo-300" : "bg-zinc-800")
+                    }
+                  />
+                ))}
+              </div>
+            ) : null}
+            <p className="mt-3 font-mono text-[11px] text-zinc-500">
+              {task.meta}
             </p>
           </div>
-          <div className="mt-8 border-t border-zinc-900" />
+        ))}
+      </div>
+    </div>
+  )
+}
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="mt-10 lg:mt-14"
-          >
-            <LivePanel />
-          </motion.div>
+export function AgentBoard() {
+  return (
+    <section className="bg-black px-4 py-12 sm:px-6 md:py-24 lg:px-8">
+      <div className="mx-auto w-full max-w-[1200px]">
+        <Reveal className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-6">
+          <h2 className="max-w-2xl text-balance text-[2rem] font-medium leading-[1.05] tracking-[-0.035em] text-white sm:text-6xl">
+            Agents take the busywork.{" "}
+            <span className="text-zinc-500">You keep the thinking.</span>
+          </h2>
+          <p className="max-w-xs text-sm leading-relaxed text-zinc-400">
+            Queue the repetitive clicks, hand them to an AutoBrowse agent, and
+            come back to clean, structured results.
+          </p>
+        </Reveal>
 
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => (
-              <div
-                key={feature.title}
-                className="group flex h-full flex-col rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition-all duration-300 hover:border-zinc-600"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex size-10 items-center justify-center rounded-lg bg-zinc-950 ring-1 ring-zinc-800">
-                    <feature.icon
-                      className="size-5 text-indigo-400"
-                      aria-hidden
-                    />
-                  </div>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600" aria-hidden>
-                    0{index + 1}
-                  </span>
-                </div>
-                <h3 className="mt-5 text-base font-semibold tracking-tight text-white">
-                  {feature.title}
-                </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
-                  {feature.description}
-                </p>
-                <div className="mt-auto pt-5">{feature.spec}</div>
-                <Link
-                  href="#"
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-zinc-500 transition-colors group-hover:text-indigo-400"
-                >
-                  {feature.learnMore}
-                  <ArrowRight
-                    className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5"
-                    aria-hidden
-                  />
-                </Link>
-              </div>
+        <Reveal className="mt-7 md:mt-12" delay={0.1}>
+          <MobileTabs
+            bp="md"
+            tone="dark"
+            labels={columns.map((c) => `${c.name} · ${c.tasks.length}`)}
+            panels={columns.map((c) => (
+              <BoardColumn key={c.name} col={c} />
             ))}
-          </div>
-        </div>
-      </MotionConfig>
+            gridClassName="md:grid-cols-3 md:gap-0 md:divide-x md:divide-white/10 md:overflow-hidden md:rounded-2xl md:border md:border-white/10"
+          />
+        </Reveal>
+      </div>
     </section>
   )
 }
