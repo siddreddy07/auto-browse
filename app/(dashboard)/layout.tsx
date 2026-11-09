@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { listWorkflows } from "@/features/workflows/data"
 import { listAgents } from "@/features/agents/data"
@@ -19,6 +19,10 @@ export default async function DashboardLayout({
     <SidebarProvider className="h-svh">
       <AppSidebar workflows={workflows} />
       <SidebarInset>
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3 md:hidden">
+          <SidebarTrigger />
+          <span className="text-sm font-semibold">Auto Browse</span>
+        </header>
         <WorkflowsProvider workflows={workflows}>
           <AgentsProvider agents={agents}>{children}</AgentsProvider>
         </WorkflowsProvider>
