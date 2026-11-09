@@ -20,7 +20,60 @@ import {
 import type { Workflow } from "@/lib/schema"
 import { createWorkflowAction } from "../actions"
 import { generateSlug } from "../lib/generate-slug"
-import { Ellipsis } from "@/components/animate-ui/icons/ellipsis"
+import { Trash } from "@/components/animate-ui/icons/trash"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { SidebarMenuAction } from "@/components/ui/sidebar"
+import { useActionState } from "react"
+import { deleteWorkflowAction } from "../actions"
+
+function DeleteWorkflowButton({ workflowId, name }: { workflowId: string; name: string }) {
+  const [, deleteAction, deletePending] = useActionState(deleteWorkflowAction, null)
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <SidebarMenuAction
+          showOnHover
+          aria-label={`Delete ${name}`}
+          className="cursor-pointer text-destructive hover:text-destructive"
+        >
+          {deletePending ? <Loader2 className="size-4 animate-spin" /> : <Trash size={16} animateOnHover />}
+        </SidebarMenuAction>
+      </AlertDialogTrigger>
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogMedia>
+            <Trash size={24} />
+          </AlertDialogMedia>
+          <AlertDialogTitle>Delete workflow?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete &quot;{name}&quot; and its associated data.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <form action={deleteAction}>
+          <input type="hidden" name="workflowId" value={workflowId} />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction type="submit" variant="destructive" disabled={deletePending}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </form>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
 
 export function SidebarWorkflowSection({ workflows }: { workflows: Workflow[] }) {
   const pathname = usePathname()
@@ -54,16 +107,18 @@ export function SidebarWorkflowSection({ workflows }: { workflows: Workflow[] })
             ) : (
               workflows.map((workflow) => (
                 <SidebarMenuItem key={workflow.id}>
-                  <SidebarMenuButton tooltip={workflow.name} asChild isActive={pathname === `/workflows/${workflow.id}`}>
-                    
-                    <div className="w-full flex items-center justify-between"> 
-                      <Link className="flex items-center gap-2" href={`/workflows/${workflow.id}`}>
-                      <RouteIcon animateOnHover/>
+                  <SidebarMenuButton
+                    tooltip={workflow.name}
+                    asChild
+                    isActive={pathname === `/workflows/${workflow.id}`}
+                    className="pr-9"
+                  >
+                    <Link href={`/workflows/${workflow.id}`}>
+                      <RouteIcon animateOnHover />
                       <span>{workflow.name}</span>
                     </Link>
-                    <span className="cursor-pointer hover:bg-zinc-900 p-1 rounded-full"><Ellipsis animateOnHover /></span>  
-                      </div>
                   </SidebarMenuButton>
+                  <DeleteWorkflowButton workflowId={workflow.id} name={workflow.name} />
                 </SidebarMenuItem>
               ))
             )}

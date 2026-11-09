@@ -12,8 +12,10 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const { orgId, userId } = await auth()
-  const workflows = orgId ? await listWorkflows(orgId) : []
-  const agents = userId ? await listAgents(orgId ?? null) : []
+  const [workflows, agents] = await Promise.all([
+    orgId ? listWorkflows(orgId) : [],
+    userId ? listAgents(orgId ?? null) : [],
+  ])
 
   return (
     <SidebarProvider className="h-svh">
